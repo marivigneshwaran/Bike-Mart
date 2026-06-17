@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ bill.bill_no }}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 30px;
+            color: #111827;
+        }
+
+        .invoice {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #f97316;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .shop-title h1 {
+            color: #f97316;
+            margin-bottom: 8px;
+        }
+
+        .shop-title p {
+            margin: 3px 0;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .invoice-title p {
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin: 25px 0 12px;
+            color: #111827;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .info-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 18px;
+            border-radius: 14px;
+        }
+
+        .info-box p {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .details-table th {
+            background: #f97316;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .details-table td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px;
+        }
+
+        .amount-box {
+            margin-top: 25px;
+            margin-left: auto;
+            max-width: 360px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .amount-row.total {
+            background: #111827;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .finance-box {
+            margin-top: 20px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            padding: 18px;
+            border-radius: 14px;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .print-actions {
+            max-width: 850px;
+            margin: 0 auto 20px;
+            text-align: right;
+        }
+
+        .print-btn-main {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .print-actions {
+                display: none;
+            }
+
+            .invoice {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="print-actions">
+    <button onclick="window.print()" class="print-btn-main">Print Bill</button>
+</div>
+
+<div class="invoice">
+    <div class="invoice-header">
+        <div class="shop-title">
+            <h1>{{ shop_setting.shop_name }}</h1>
+            <p><strong>Owner:</strong> {{ shop_setting.owner_name }}</p>
+            <p><strong>Phone:</strong> {{ shop_setting.phone }}</p>
+            <p><strong>Email:</strong> {{ shop_setting.email }}</p>
+            <p><strong>Address:</strong> {{ shop_setting.address }}</p>
+        </div>
+
+        <div class="invoice-title">
+            <h2>INVOICE</h2>
+            <p><strong>Bill No:</strong> {{ bill.bill_no }}</p>
+            <p><strong>Date:</strong> {{ bill.bill_date }}</p>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <h3>Customer Details</h3>
+            <p><strong>Name:</strong> {{ bill.customer.name }}</p>
+            <p><strong>Phone:</strong> {{ bill.customer.phone }}</p>
+            <p><strong>Email:</strong> {{ bill.customer.email|default:"-" }}</p>
+            <p><strong>Address:</strong> {{ bill.customer.address|default:"-" }}</p>
+        </div>
+
+        <div class="info-box">
+            <h3>Payment Details</h3>
+            <p><strong>Settlement:</strong> {{ bill.get_settlement_type_display }}</p>
+            <p><strong>Payment Type:</strong> {{ bill.get_payment_type_display }}</p>
+
+            {% if bill.payment_type == 'upi' %}
+                <p><strong>UPI ID:</strong> {{ bill.upi_id }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h3 class="section-title">Bike Details</h3>
+
+    <table class="details-table">
+        <tr>
+            <th>Bike</th>
+            <th>Brand</th>
+            <th>Year</th>
+            <th>Reg No</th>
+            <th>KM</th>
+            <th>Price</th>
+        </tr>
+
+        <tr>
+            <td>{{ bill.bike.bike_name }}</td>
+            <td>{{ bill.bike.brand }}</td>
+            <td>{{ bill.bike.model_year }}</td>
+            <td>{{ bill.bike.registration_number }}</td>
+            <td>{{ bill.bike.km_driven }}</td>
+            <td>₹ {{ bill.final_price }}</td>
+        </tr>
+    </table>
+
+    {% if bill.settlement_type == 'finance' %}
+    <div class="finance-box">
+        <h3>Finance Details</h3>
+        <p><strong>Finance Company:</strong> {{ bill.finance_company_name }}</p>
+        <p><strong>Down Payment:</strong> ₹ {{ bill.finance_down_payment }}</p>
+        <p><strong>Finance Amount:</strong> ₹ {{ bill.finance_amount }}</p>
+        <p><strong>Interest:</strong> {{ bill.finance_interest_percentage }}%</p>
+        <p><strong>Interest Amount:</strong> ₹ {{ bill.finance_interest_amount }}</p>
+        <p><strong>Total Amount Include Interest:</strong> ₹ {{ bill.total_amount_include_interest }}</p>
+        <p><strong>Months:</strong> {{ bill.finance_months }}</p>
+        <p><strong>Monthly EMI:</strong> ₹ {{ bill.monthly_emi }}</p>
+    </div>
+    {% endif %}
+
+    <div class="amount-box">
+        <div class="amount-row">
+            <span>Bike Price</span>
+            <strong>₹ {{ bill.bike_price }}</strong>
+        </div>
+
+        <div class="amount-row">
+            <span>Final Price</span>
+            <strong>₹ {{ bill.final_price }}</strong>
+        </div>
+
+        <div class="amount-row">
+            <span>Advance Paid</span>
+            <strong>₹ {{ bill.advance_amount }}</strong>
+        </div>
+
+        <div class="amount-row total">
+            <span>Payable Amount</span>
+            <strong>₹ {{ bill.payable_amount }}</strong>
+        </div>
+    </div>
+
+    {% if bill.remarks %}
+    <div class="finance-box">
+        <h3>Remarks</h3>
+        <p>{{ bill.remarks }}</p>
+    </div>
+    {% endif %}
+
+    <p class="footer-note">
+        Thank you for purchasing from {{ shop_setting.shop_name }}.
+    </p>
+</div>
+
+</body>
+</html>

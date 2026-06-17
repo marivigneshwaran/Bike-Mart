@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% comment %} <aside class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        <a href="{% url 'bike_list' %}">Bike Details</a>
+        <a href="{% url 'customer_list' %}">Customer Details</a>
+        <a href="{% url 'vendor_list' %}">Vendor Details</a>
+    </aside> {% endcomment %}
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Bike Details</h1>
+                <p class="admin-subtitle">Manage available and sold bike records.</p>
+            </div>
+
+            <a href="{% url 'bike_create' %}" class="btn-small">Add Bike</a>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <tr>
+                    <th>Photo</th>
+                    <th>Bike</th>
+                    <th>Brand</th>
+                    <th>Year</th>
+                    <th>KM</th>
+                    {% if request.user.is_superuser %}
+                        <th>Buying Price</th>
+                    {% endif %}
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for bike in bikes %}
+                <tr>
+                    <td>
+                        {% if bike.bike_photo %}
+                            <img src="{{ bike.bike_photo.url }}" class="table-img">
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ bike.bike_name }}</strong><br>
+                        <small>{{ bike.registration_number }}</small>
+                    </td>
+                    <td>{{ bike.brand }}</td>
+                    <td>{{ bike.model_year }}</td>
+                    <td>{{ bike.km_driven }}</td>
+                    {% if request.user.is_superuser %}
+                        <td>
+                            {% if bike.buying_price %}
+                                ₹ {{ bike.buying_price }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    <td>₹ {{ bike.selling_price }}</td>
+                    <td>
+                        {% if bike.status == 'sold' %}
+                            <span class="status-pill sold-pill">Sold</span>
+                        {% else %}
+                            <span class="status-pill available-pill">Available</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'bike_update' bike.id %}" class="edit-btn">Edit</a>
+                            <a href="{% url 'bike_delete' bike.id %}" class="delete-btn" onclick="return confirm('Delete this bike?')">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No bikes found.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

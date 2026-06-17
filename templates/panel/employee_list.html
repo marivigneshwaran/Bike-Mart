@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% comment %} <aside class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        <a href="{% url 'bike_list' %}">Bike Details</a>
+        <a href="{% url 'customer_list' %}">Customer Details</a>
+        <a href="{% url 'vendor_list' %}">Vendor Details</a>
+        <a href="{% url 'employee_list' %}">Employee Details</a>
+        <a href="{% url 'shop_settings_update' %}">Shop Settings</a>
+    </aside> {% endcomment %}
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Employee Details</h1>
+                <p class="admin-subtitle">Manage employee records, salary, contact and documents.</p>
+            </div>
+
+            <a href="{% url 'employee_create' %}" class="btn-small">Add Employee</a>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Designation</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>ID Proof</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for employee in employees %}
+                <tr>
+                    <td>
+                        {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" class="table-img">
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ employee.name }}</strong><br>
+                        <small>Age: {{ employee.age|default:"-" }}</small>
+                    </td>
+                    <td>
+                        {{ employee.phone }}<br>
+                        <small>{{ employee.email|default:"-" }}</small>
+                    </td>
+                    <td>{{ employee.designation|default:"-" }}</td>
+                    <td>
+                        {% if employee.salary %}
+                            ₹ {{ employee.salary }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if employee.status == 'active' %}
+                            <span class="status-pill available-pill">Active</span>
+                        {% else %}
+                            <span class="status-pill sold-pill">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if employee.id_proof_file %}
+                            <a href="{{ employee.id_proof_file.url }}" target="_blank">View</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'employee_update' employee.id %}" class="edit-btn">Edit</a>
+                            <a href="{% url 'employee_delete' employee.id %}" class="delete-btn" onclick="return confirm('Delete this employee?')">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No employees found.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

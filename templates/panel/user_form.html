@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="form-page-header">
+            <div>
+                <h1>{{ title }}</h1>
+                <p>Create or update login user. Admin can see finance and profit details. Staff cannot.</p>
+            </div>
+        </div>
+
+        <form method="POST" class="modern-form-card">
+            {% csrf_token %}
+
+            <div class="modern-form-grid">
+                {% for field in form %}
+                    <div class="modern-form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small>{{ field.help_text }}</small>
+                        {% endif %}
+
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-action-row">
+                <button type="submit" class="btn">Save User</button>
+                <a href="{% url 'user_list' %}" class="btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="page-header">
+    <h1>Available Bikes</h1>
+    <p>Choose from our latest second-hand bikes.</p>
+</section>
+
+<section class="section">
+    <div class="bike-grid">
+        {% for bike in bikes %}
+        <div class="bike-card">
+            {% if bike.bike_photo %}
+                <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
+            {% endif %}
+
+            <h3>{{ bike.bike_name }}</h3>
+            <p>{{ bike.brand }} | {{ bike.model_year }}</p>
+            <p>{{ bike.km_driven }} KM Driven</p>
+            <h4>₹ {{ bike.selling_price }}</h4>
+
+            <a href="{% url 'bike_detail' bike.id %}" class="btn-small">View Details</a>
+        </div>
+        {% empty %}
+        <p>No bikes available now.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

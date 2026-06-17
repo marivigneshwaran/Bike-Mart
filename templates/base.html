@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Second Hand Bike Shop</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">BikeMart</div>
+
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'available_bikes' %}">Available Bikes</a>
+        <a href="{% url 'sold_bikes' %}">Sold Bikes</a>
+        <a href="{% url 'contact' %}">Contact</a>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+            <a href="{% url 'admin_logout' %}">Logout</a>
+        {% endif %}
+    </nav>
+</header>
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <p>© 2026 BikeMart. All rights reserved.</p>
+    <p>Address: Chennai, Tamil Nadu</p>
+    <p>Phone: +91 98765 43210</p>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% comment %} <aside class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        <a href="{% url 'bike_list' %}">Bike Details</a>
+        <a href="{% url 'bill_payment_list' %}">Bill Payments</a>
+        <a href="{% url 'customer_list' %}">Customer Details</a>
+        <a href="{% url 'vendor_list' %}">Vendor Details</a>
+        <a href="{% url 'employee_list' %}">Employee Details</a>
+        <a href="{% url 'shop_settings_update' %}">Shop Settings</a>
+        <a href="{% url 'admin_logout' %}">Logout</a>
+    </aside> {% endcomment %}
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content dashboard-page">
+
+        <div class="dashboard-top-header">
+            <div>
+                <span class="dashboard-label">BikeMart Admin</span>
+                <h1>Dashboard</h1>
+                <p>Overview of bike stock, sales, customers, employees and finance details.</p>
+            </div>
+
+            <div class="dashboard-date-box">
+                <span>Business Overview</span>
+                <strong>Live Records</strong>
+            </div>
+        </div>
+
+        <div class="modern-dashboard-cards">
+            <div class="modern-dash-card card-blue">
+                <div class="dash-icon">🏍️</div>
+                <div>
+                    <h2>{{ total_bikes }}</h2>
+                    <p>Total Bikes</p>
+                </div>
+            </div>
+            <div class="modern-dash-card card-orange">
+                <div class="dash-icon">🧾</div>
+                <div>
+                    <h2>{{ bill_count }}</h2>
+                    <p>Bills</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-green">
+                <div class="dash-icon">✅</div>
+                <div>
+                    <h2>{{ available_bikes_count }}</h2>
+                    <p>Available Bikes</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-red">
+                <div class="dash-icon">🏁</div>
+                <div>
+                    <h2>{{ sold_bikes_count }}</h2>
+                    <p>Sold Bikes</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-purple">
+                <div class="dash-icon">👥</div>
+                <div>
+                    <h2>{{ customers_count }}</h2>
+                    <p>Customers</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-yellow">
+                <div class="dash-icon">🤝</div>
+                <div>
+                    <h2>{{ vendors_count }}</h2>
+                    <p>Vendors</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-cyan">
+                <div class="dash-icon">👨‍🔧</div>
+                <div>
+                    <h2>{{ employees_count }}</h2>
+                    <p>Employees</p>
+                </div>
+            </div>
+
+            <div class="modern-dash-card card-orange">
+                <div class="dash-icon">📩</div>
+                <div>
+                    <h2>{{ inquiries_count }}</h2>
+                    <p>Inquiries</p>
+                </div>
+            </div>
+        </div>
+
+        {% if can_view_finance %}
+        <div class="finance-summary-grid">
+            <div class="finance-card invest-card">
+                <span>Total Invested</span>
+                <h2>₹ {{ total_invested_amount }}</h2>
+                <p>Total buying amount of all bikes.</p>
+            </div>
+
+            <div class="finance-card sales-card">
+                <span>Total Sales</span>
+                <h2>₹ {{ total_sales_amount }}</h2>
+                <p>Total selling amount from sold bikes.</p>
+            </div>
+
+            <div class="finance-card profit-card">
+                <span>Total Profit</span>
+                <h2>₹ {{ total_profit }}</h2>
+                <p>Profit from sold bikes only.</p>
+            </div>
+
+            <div class="finance-card sales-card">
+                <span>Advance Collected</span>
+                <h2>₹ {{ total_advance_amount }}</h2>
+                <p>Total advance collected from bills.</p>
+            </div>
+
+            <div class="finance-card stock-card">
+                <span>Pending Amount</span>
+                <h2>₹ {{ pending_amount }}</h2>
+                <p>Total pending amount from sales.</p>
+            </div>
+
+            <div class="finance-card stock-card">
+                <span>Available Stock Value</span>
+                <h2>₹ {{ available_stock_value }}</h2>
+                <p>Buying value of available bikes.</p>
+            </div>
+
+            <div class="finance-card potential-card">
+                <span>Potential Profit</span>
+                <h2>₹ {{ potential_profit }}</h2>
+                <p>Expected profit from available bikes.</p>
+            </div>
+
+            <div class="finance-card sales-card">
+                <span>Total Payable Amount</span>
+                <h2>₹ {{ total_payable_amount }}</h2>
+                <p>Total amount payable after advance.</p>
+            </div>
+
+            <div class="finance-card stock-card">
+                <span>Total Finance Amount</span>
+                <h2>₹ {{ total_finance_amount }}</h2>
+                <p>Total amount given through finance.</p>
+            </div>
+
+            <div class="finance-card potential-card">
+                <span>Total Interest Amount</span>
+                <h2>₹ {{ total_interest_amount }}</h2>
+                <p>Total interest amount from finance bills.</p>
+            </div>
+
+            <div class="finance-card profit-card">
+                <span>Total Include Interest</span>
+                <h2>₹ {{ total_amount_include_interest }}</h2>
+                <p>Finance amount plus interest.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="dashboard-chart-grid">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Bike Status</h3>
+                    <p>Available vs Sold bikes</p>
+                </div>
+                <canvas id="bikeStatusChart"></canvas>
+            </div>
+
+            {% if can_view_finance %}
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Finance Overview</h3>
+                    <p>Investment, sales and profit</p>
+                </div>
+                <canvas id="financeChart"></canvas>
+            </div>
+            {% endif %}
+
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Brand Wise Bikes</h3>
+                    <p>Top bike brands in stock</p>
+                </div>
+                <canvas id="brandChart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-bottom-grid">
+            <div class="dashboard-table-box">
+                <div class="dashboard-section-title">
+                    <h2>Recent Bikes</h2>
+                    <a href="{% url 'bike_list' %}">View All</a>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <tr>
+                            <th>Bike</th>
+                            <th>Brand</th>
+                            <th>Buying Price</th>
+                            <th>Selling Price</th>
+                            <th>Status</th>
+                        </tr>
+
+                        {% for bike in recent_bikes %}
+                        <tr>
+                            <td>
+                                <strong>{{ bike.bike_name }}</strong><br>
+                                <small>{{ bike.registration_number }}</small>
+                            </td>
+                            <td>{{ bike.brand }}</td>
+                            <td>
+                                {% if bike.buying_price %}
+                                    ₹ {{ bike.buying_price }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>₹ {{ bike.selling_price }}</td>
+                            <td>
+                                {% if bike.status == 'sold' %}
+                                    <span class="status-pill sold-pill">Sold</span>
+                                {% else %}
+                                    <span class="status-pill available-pill">Available</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No bikes found.</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="quick-action-box">
+                <h2>Quick Actions</h2>
+                <p>Manage daily showroom activities quickly.</p>
+
+                <div class="quick-action-list">
+                    <a href="{% url 'bike_create' %}">Add New Bike</a>
+                    <a href="{% url 'bill_payment_create' %}">Create Bill Payment</a>
+                    <a href="{% url 'customer_create' %}">Add Customer</a>
+                    <a href="{% url 'vendor_create' %}">Add Vendor</a>
+                    <a href="{% url 'employee_create' %}">Add Employee</a>
+                    <a href="{% url 'shop_settings_update' %}">Update Shop Details</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const statusLabels = JSON.parse('{{ status_chart_labels|escapejs }}');
+    const statusData = JSON.parse('{{ status_chart_data|escapejs }}');
+
+    const brandLabels = JSON.parse('{{ brand_chart_labels|escapejs }}');
+    const brandData = JSON.parse('{{ brand_chart_data|escapejs }}');
+
+    new Chart(document.getElementById('bikeStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: ['#86efac', '#fca5a5'],
+                borderColor: ['#22c55e', '#ef4444'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    {% if can_view_finance %}
+    const financeLabels = JSON.parse('{{ finance_chart_labels|escapejs }}');
+    const financeData = JSON.parse('{{ finance_chart_data|escapejs }}');
+    new Chart(document.getElementById('financeChart'), {
+        type: 'bar',
+        data: {
+            labels: financeLabels,
+            datasets: [{
+                label: 'Amount',
+                data: financeData,
+                backgroundColor: ['#bfdbfe', '#bbf7d0', '#fed7aa', '#ddd6fe', '#fde68a'],
+                borderColor: ['#3b82f6', '#22c55e', '#f97316', '#8b5cf6', '#f59e0b'],
+                borderWidth: 1,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    new Chart(document.getElementById('brandChart'), {
+        type: 'polarArea',
+        data: {
+            labels: brandLabels,
+            datasets: [{
+                data: brandData,
+                backgroundColor: ['#bfdbfe', '#bbf7d0', '#fed7aa', '#ddd6fe', '#fecaca', '#bae6fd']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

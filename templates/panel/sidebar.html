@@ -1,0 +1,49 @@
+<aside class="sidebar">
+    <h2>Admin Panel</h2>
+
+    <a href="{% url 'admin_dashboard' %}"
+       class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active-sidebar-link{% endif %}">
+        Dashboard
+    </a>
+
+    <a href="{% url 'bike_list' %}"
+       class="{% if request.resolver_match.url_name == 'bike_list' or request.resolver_match.url_name == 'bike_create' or request.resolver_match.url_name == 'bike_update' %}active-sidebar-link{% endif %}">
+        Bike Details
+    </a>
+
+    <a href="{% url 'bill_payment_list' %}"
+       class="{% if request.resolver_match.url_name == 'bill_payment_list' or request.resolver_match.url_name == 'bill_payment_create' or request.resolver_match.url_name == 'bill_payment_update' %}active-sidebar-link{% endif %}">
+        Bill Payments
+    </a>
+
+    <a href="{% url 'customer_list' %}"
+       class="{% if request.resolver_match.url_name == 'customer_list' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_update' %}active-sidebar-link{% endif %}">
+        Customer Details
+    </a>
+
+    <a href="{% url 'vendor_list' %}"
+       class="{% if request.resolver_match.url_name == 'vendor_list' or request.resolver_match.url_name == 'vendor_create' or request.resolver_match.url_name == 'vendor_update' %}active-sidebar-link{% endif %}">
+        Vendor Details
+    </a>
+
+    <a href="{% url 'employee_list' %}"
+       class="{% if request.resolver_match.url_name == 'employee_list' or request.resolver_match.url_name == 'employee_create' or request.resolver_match.url_name == 'employee_update' %}active-sidebar-link{% endif %}">
+        Employee Details
+    </a>
+
+    <a href="{% url 'shop_settings_update' %}"
+       class="{% if request.resolver_match.url_name == 'shop_settings_update' %}active-sidebar-link{% endif %}">
+        Shop Settings
+    </a>
+
+    {% if request.user.is_superuser %}
+        <a href="{% url 'user_list' %}"
+           class="{% if request.resolver_match.url_name == 'user_list' or request.resolver_match.url_name == 'user_create' or request.resolver_match.url_name == 'user_update' %}active-sidebar-link{% endif %}">
+            Users
+        </a>
+    {% endif %}
+
+    <a href="{% url 'admin_logout' %}">
+        Logout
+    </a>
+</aside>

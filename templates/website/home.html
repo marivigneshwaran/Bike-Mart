@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="hero-badge">Trusted Second-Hand Bike Showroom</span>
+        <h1 class="hero-title">Buy Your Dream Bike at the Best Price</h1>
+        <p>
+            Explore quality checked second-hand bikes with verified documents,
+            transparent pricing, and smooth buying support.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="{% url 'available_bikes' %}" class="btn">View Available Bikes</a>
+            <a href="{% url 'contact' %}" class="btn-outline">Contact Shop</a>
+        </div>
+    </div>
+
+    <div class="hero-info-card">
+        <h3>Why BikeMart?</h3>
+        <p>Verified bikes, fair price, trusted sellers, and easy customer support.</p>
+        <div class="hero-mini-stats">
+            <div>
+                <strong>{{ total_bikes }}</strong>
+                <span>Total Bikes</span>
+            </div>
+            <div>
+                <strong>{{ available_count }}</strong>
+                <span>Available</span>
+            </div>
+            <div>
+                <strong>{{ sold_count }}</strong>
+                <span>Sold</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card">
+        <h2>{{ total_bikes }}</h2>
+        <p>Total Bikes</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>{{ available_count }}</h2>
+        <p>Available Bikes</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>{{ sold_count }}</h2>
+        <p>Sold Bikes</p>
+    </div>
+</section>
+
+<section class="section intro-section">
+    <div class="intro-content">
+        <span class="section-label">About Our Shop</span>
+        <h2>Your Trusted Place for Quality Used Bikes</h2>
+        <p>
+            BikeMart helps customers buy second-hand bikes with confidence.
+            Every bike listed here is checked for basic condition, documents,
+            ownership details, and pricing clarity. Our goal is to make the used
+            bike buying process simple, transparent, and comfortable.
+        </p>
+    </div>
+
+    <div class="intro-points">
+        <div>
+            <h3>Document Verified</h3>
+            <p>We maintain bike and vendor details for better transparency.</p>
+        </div>
+        <div>
+            <h3>Easy Enquiry</h3>
+            <p>Customers can contact the shop directly for bike details.</p>
+        </div>
+        <div>
+            <h3>Sold History</h3>
+            <p>Sold bikes are shown separately for trust and showroom activity.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-heading-row">
+        <div>
+            <span class="section-label">Bike Collection</span>
+            <h2>Explore Our Bikes</h2>
+        </div>
+    </div>
+
+    <div class="bike-tabs">
+        <button class="bike-tab-btn active" data-tab="available-tab">Available Bikes</button>
+        <button class="bike-tab-btn" data-tab="sold-tab">Sold Bikes</button>
+    </div>
+
+    <div class="bike-tab-content active" id="available-tab">
+        <div class="bike-grid">
+            {% for bike in available_bikes_preview %}
+            <div class="bike-card">
+                {% if bike.bike_photo %}
+                    <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
+                {% endif %}
+
+                <h3>{{ bike.bike_name }}</h3>
+                <p>{{ bike.brand }} | {{ bike.model_year }}</p>
+                <p>{{ bike.km_driven }} KM Driven</p>
+                <h4>₹ {{ bike.selling_price }}</h4>
+
+                <a href="{% url 'bike_detail' bike.id %}" class="btn-small">View Details</a>
+            </div>
+            {% empty %}
+            <p>No available bikes found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="view-all-wrap">
+            <a href="{% url 'available_bikes' %}" class="btn">View All Available Bikes</a>
+        </div>
+    </div>
+
+    <div class="bike-tab-content" id="sold-tab">
+        <div class="bike-grid">
+            {% for bike in sold_bikes_preview %}
+            <div class="bike-card sold">
+                {% if bike.bike_photo %}
+                    <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
+                {% endif %}
+
+                <span class="sold-badge">Sold</span>
+
+                <h3>{{ bike.bike_name }}</h3>
+                <p>{{ bike.brand }} | {{ bike.model_year }}</p>
+                <p>{{ bike.km_driven }} KM Driven</p>
+                <h4>₹ {{ bike.selling_price }}</h4>
+            </div>
+            {% empty %}
+            <p>No sold bikes found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="view-all-wrap">
+            <a href="{% url 'sold_bikes' %}" class="btn">View All Sold Bikes</a>
+        </div>
+    </div>
+</section>
+
+<section class="section dark why-section">
+    <span class="section-label light">Why Choose Us?</span>
+    <h2>Simple, Transparent, and Trusted Bike Buying</h2>
+
+    <div class="features">
+        <div>
+            <h3>Verified Bikes</h3>
+            <p>Bike details, vendor information, and basic records are maintained properly.</p>
+        </div>
+
+        <div>
+            <h3>Fair Pricing</h3>
+            <p>We help customers find second-hand bikes at reasonable and transparent prices.</p>
+        </div>
+
+        <div>
+            <h3>Customer Support</h3>
+            <p>Customers can contact the shop easily for enquiries and bike availability.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section testimonial-section">
+    <div class="section-heading-row">
+        <div>
+            <span class="section-label">Customer Words</span>
+            <h2>Testimonials</h2>
+        </div>
+
+        <button type="button" class="btn" id="openTestimonialModal">
+            Add Testimonial
+        </button>
+    </div>
+
+    <div class="testimonial-slider">
+        {% for testimonial in testimonials %}
+        <div class="testimonial-slide">
+            <div class="testimonial-card">
+                <div class="testimonial-rating">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= testimonial.rating %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <p>“{{ testimonial.message }}”</p>
+                <h4>- {{ testimonial.customer_name }}</h4>
+
+                {% if testimonial.email %}
+                    <span>{{ testimonial.email }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>No testimonials added yet.</p>
+        {% endfor %}
+    </div>
+
+    <div class="slider-controls">
+        <button type="button" id="prevTestimonial">Previous</button>
+        <button type="button" id="nextTestimonial">Next</button>
+    </div>
+</section>
+
+<div class="testimonial-modal" id="testimonialModal">
+    <div class="testimonial-modal-card">
+        <button type="button" class="modal-close" id="closeTestimonialModal">×</button>
+
+        <h2>Add Your Testimonial</h2>
+        <p>Share your experience with our bike shop.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input type="hidden" name="form_type" value="testimonial_form">
+
+            {{ testimonial_form.as_p }}
+
+            <button type="submit" class="btn">Submit Feedback</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

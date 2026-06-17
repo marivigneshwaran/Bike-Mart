@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="about-hero">
+    <div>
+        <span class="section-label light">About BikeMart</span>
+        <h1>Your Trusted Second-Hand Bike Partner</h1>
+        <p>
+            We help customers buy quality used bikes with confidence, transparency,
+            and simple support.
+        </p>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="about-content-card">
+        <span class="section-label">Who We Are</span>
+        <h2>Welcome to BikeMart</h2>
+        <p>
+            BikeMart is a trusted second-hand bike sales shop focused on providing
+            verified used bikes at fair prices. We understand that buying a used bike
+            needs trust, proper details, and clear communication. That is why we maintain
+            bike information, customer details, vendor details, and billing records in a
+            proper way.
+        </p>
+
+        <p>
+            Our goal is to make the second-hand bike buying process simple, safe, and
+            comfortable for every customer.
+        </p>
+    </div>
+
+    <div class="about-highlight-card">
+        <h3>What We Offer</h3>
+
+        <div class="about-point">
+            <span>🏍️</span>
+            <div>
+                <h4>Quality Used Bikes</h4>
+                <p>We list bikes with important details like brand, year, KM driven, price, and status.</p>
+            </div>
+        </div>
+
+        <div class="about-point">
+            <span>📄</span>
+            <div>
+                <h4>Clear Records</h4>
+                <p>Customer, vendor, employee, and bill details are maintained properly.</p>
+            </div>
+        </div>
+
+        <div class="about-point">
+            <span>💰</span>
+            <div>
+                <h4>Flexible Payment</h4>
+                <p>Customers can choose full settlement or finance-based payment options.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-values-section">
+    <div class="about-value-card">
+        <div class="value-icon">✅</div>
+        <h3>Verified Details</h3>
+        <p>
+            We maintain bike, vendor, and customer information for better transparency.
+        </p>
+    </div>
+
+    <div class="about-value-card">
+        <div class="value-icon">🤝</div>
+        <h3>Customer Support</h3>
+        <p>
+            Our team helps customers understand bike details, pricing, and payment options.
+        </p>
+    </div>
+
+    <div class="about-value-card">
+        <div class="value-icon">🧾</div>
+        <h3>Proper Billing</h3>
+        <p>
+            Every sale can be managed with bill payment records and printable invoice format.
+        </p>
+    </div>
+
+    <div class="about-value-card">
+        <div class="value-icon">📍</div>
+        <h3>Easy Contact</h3>
+        <p>
+            Customers can contact us easily through the website contact form and shop details.
+        </p>
+    </div>
+</section>
+
+<section class="about-mission-section">
+    <div class="mission-box">
+        <span class="section-label">Our Mission</span>
+        <h2>To Make Used Bike Buying Simple and Trustworthy</h2>
+        <p>
+            We aim to provide a smooth second-hand bike buying experience by showing clear
+            bike details, maintaining proper records, and supporting customers from enquiry
+            to billing.
+        </p>
+
+        <a href="{% url 'available_bikes' %}" class="btn">View Available Bikes</a>
+    </div>
+</section>
+
+{% endblock %}

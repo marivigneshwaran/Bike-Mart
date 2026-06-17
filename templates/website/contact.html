@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="contact-hero">
+    <div>
+        <span class="section-label light">Get In Touch</span>
+        <h1>Contact Us</h1>
+        <p>Visit our shop or send your inquiry. We will contact you shortly.</p>
+    </div>
+</section>
+
+<section class="contact-section-new">
+
+    <div class="contact-left">
+
+        <div class="contact-info-card">
+            <div class="contact-shop-icon">
+                🏍️
+            </div>
+
+            <h2>{{ shop_setting.shop_name }}</h2>
+            <p class="contact-short-text">
+                {{ shop_setting.short_description }}
+            </p>
+
+            <div class="contact-detail-list">
+
+                <div class="contact-detail-item">
+                    <div class="contact-icon">👤</div>
+                    <div>
+                        <span>Owner Name</span>
+                        <strong>{{ shop_setting.owner_name }}</strong>
+                    </div>
+                </div>
+
+                <div class="contact-detail-item">
+                    <div class="contact-icon">📍</div>
+                    <div>
+                        <span>Shop Address</span>
+                        <strong>{{ shop_setting.address }}</strong>
+                    </div>
+                </div>
+
+                <div class="contact-detail-item">
+                    <div class="contact-icon">📞</div>
+                    <div>
+                        <span>Phone</span>
+                        <strong>{{ shop_setting.phone }}</strong>
+                    </div>
+                </div>
+
+                <div class="contact-detail-item">
+                    <div class="contact-icon">✉️</div>
+                    <div>
+                        <span>Email</span>
+                        <strong>{{ shop_setting.email }}</strong>
+                    </div>
+                </div>
+
+                <div class="contact-detail-item">
+                    <div class="contact-icon">⏰</div>
+                    <div>
+                        <span>Working Hours</span>
+                        <strong>{{ shop_setting.working_hours }}</strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="map-card">
+            <h3>Find Us On Map</h3>
+
+            <div class="google-map-box">
+                <iframe
+                    src="https://www.google.com/maps?q={{ map_query }}&output=embed"
+                    width="100%"
+                    height="280"
+                    style="border:0;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="contact-form-card">
+        <span class="section-label">Send Inquiry</span>
+        <h2>Need Bike Details?</h2>
+        <p>Fill the form below. Our team will call you back soon.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-row">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+
+            <div class="form-row">
+                {{ form.phone.label_tag }}
+                {{ form.phone }}
+            </div>
+
+            <div class="form-row">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+
+            <div class="form-row">
+                {{ form.message.label_tag }}
+                {{ form.message }}
+            </div>
+
+            <button type="submit" class="btn">Submit Inquiry</button>
+        </form>
+    </div>
+
+</section>
+
+{% endblock %}

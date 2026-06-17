@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="form-page-header">
+            <div>
+                <h1>{{ title }}</h1>
+                <p>Select customer, available bike, settlement type and payment details.</p>
+            </div>
+        </div>
+
+        <form method="POST" class="modern-form-card">
+            {% csrf_token %}
+
+            <div class="modern-form-grid">
+                {% for field in form %}
+                    <div class="modern-form-group
+                        {% if field.name == 'remarks' %}full-width{% endif %}
+                        {% if field.name == 'finance_company_name' or field.name == 'finance_down_payment' or field.name == 'finance_amount' or field.name == 'finance_interest_percentage' or field.name == 'finance_interest_amount' or field.name == 'finance_months' or field.name == 'total_amount_include_interest' or field.name == 'monthly_emi' %} finance-field{% endif %}
+                        {% if field.name == 'upi_id' %} upi-field{% endif %}
+                    ">
+                        {{ field.label_tag }}
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="bill-calculation-box">
+                <h3>Calculation Summary</h3>
+
+                <div class="bill-calc-grid">
+                    <div>
+                        <span>Bike Price</span>
+                        <strong id="summaryBikePrice">₹ 0.00</strong>
+                    </div>
+
+                    <div>
+                        <span>Advance Amount</span>
+                        <strong id="summaryAdvance">₹ 0.00</strong>
+                    </div>
+
+                    <div>
+                        <span>Payable Amount</span>
+                        <strong id="summaryPayable">₹ 0.00</strong>
+                    </div>
+
+                    <div class="finance-summary-item">
+                        <span>Finance Amount</span>
+                        <strong id="summaryFinanceAmount">₹ 0.00</strong>
+                    </div>
+
+                    <div class="finance-summary-item">
+                        <span>Interest Amount</span>
+                        <strong id="summaryInterestAmount">₹ 0.00</strong>
+                    </div>
+
+                    <div class="finance-summary-item">
+                        <span>Total Include Interest</span>
+                        <strong id="summaryTotalWithInterest">₹ 0.00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-action-row">
+                <button type="submit" class="btn">Save Bill</button>
+                <a href="{% url 'bill_payment_list' %}" class="btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    const bikePriceData = JSON.parse('{{ bike_price_data|escapejs }}');
+
+    const bikeSelect = document.getElementById('id_bike');
+    const bikePriceInput = document.getElementById('id_bike_price');
+    const finalPriceInput = document.getElementById('id_final_price');
+    const advanceInput = document.getElementById('id_advance_amount');
+    const payableInput = document.getElementById('id_payable_amount');
+
+    const settlementSelect = document.getElementById('id_settlement_type');
+    const financeFields = document.querySelectorAll('.finance-field');
+
+    const financeDownPaymentInput = document.getElementById('id_finance_down_payment');
+    const financeAmountInput = document.getElementById('id_finance_amount');
+    const financeInterestPercentageInput = document.getElementById('id_finance_interest_percentage');
+    const financeInterestAmountInput = document.getElementById('id_finance_interest_amount');
+    const financeMonthsInput = document.getElementById('id_finance_months');
+    const totalAmountIncludeInterestInput = document.getElementById('id_total_amount_include_interest');
+    const monthlyEmiInput = document.getElementById('id_monthly_emi');
+
+    const paymentTypeSelect = document.getElementById('id_payment_type');
+    const upiFields = document.querySelectorAll('.upi-field');
+
+    const summaryBikePrice = document.getElementById('summaryBikePrice');
+    const summaryAdvance = document.getElementById('summaryAdvance');
+    const summaryPayable = document.getElementById('summaryPayable');
+    const summaryFinanceAmount = document.getElementById('summaryFinanceAmount');
+    const summaryInterestAmount = document.getElementById('summaryInterestAmount');
+    const summaryTotalWithInterest = document.getElementById('summaryTotalWithInterest');
+    const financeSummaryItems = document.querySelectorAll('.finance-summary-item');
+
+    function toNumber(value) {
+        const numberValue = parseFloat(value);
+        return isNaN(numberValue) ? 0 : numberValue;
+    }
+
+    function formatMoney(value) {
+        return '₹ ' + toNumber(value).toFixed(2);
+    }
+
+    function updateBikePrice() {
+        if (!bikeSelect || !bikePriceInput || !finalPriceInput) {
+            return;
+        }
+
+        const selectedBikeId = bikeSelect.value;
+
+        if (bikePriceData[selectedBikeId]) {
+            bikePriceInput.value = bikePriceData[selectedBikeId].toFixed(2);
+            finalPriceInput.value = bikePriceData[selectedBikeId].toFixed(2);
+        }
+
+        calculateBillAmounts();
+    }
+
+    function calculateBillAmounts() {
+        const finalPrice = toNumber(finalPriceInput ? finalPriceInput.value : 0);
+        const advanceAmount = toNumber(advanceInput ? advanceInput.value : 0);
+
+        let payableAmount = finalPrice - advanceAmount;
+
+        if (payableAmount < 0) {
+            payableAmount = 0;
+        }
+
+        if (payableInput) {
+            payableInput.value = payableAmount.toFixed(2);
+        }
+
+        calculateFinanceAmounts();
+
+        if (summaryBikePrice) {
+            summaryBikePrice.innerText = formatMoney(finalPrice);
+        }
+
+        if (summaryAdvance) {
+            summaryAdvance.innerText = formatMoney(advanceAmount);
+        }
+
+        if (summaryPayable) {
+            summaryPayable.innerText = formatMoney(payableAmount);
+        }
+    }
+
+    function calculateFinanceAmounts() {
+        const finalPrice = toNumber(finalPriceInput ? finalPriceInput.value : 0);
+        const downPayment = toNumber(financeDownPaymentInput ? financeDownPaymentInput.value : 0);
+        const interestPercentage = toNumber(financeInterestPercentageInput ? financeInterestPercentageInput.value : 0);
+        const months = toNumber(financeMonthsInput ? financeMonthsInput.value : 0);
+
+        let financeAmount = finalPrice - downPayment;
+
+        if (financeAmount < 0) {
+            financeAmount = 0;
+        }
+
+        const interestAmount = financeAmount * interestPercentage / 100;
+        const totalWithInterest = financeAmount + interestAmount;
+        let monthlyEmi = 0;
+
+        if (months > 0) {
+            monthlyEmi = totalWithInterest / months;
+        }
+
+        if (financeAmountInput) {
+            financeAmountInput.value = financeAmount.toFixed(2);
+        }
+
+        if (financeInterestAmountInput) {
+            financeInterestAmountInput.value = interestAmount.toFixed(2);
+        }
+
+        if (totalAmountIncludeInterestInput) {
+            totalAmountIncludeInterestInput.value = totalWithInterest.toFixed(2);
+        }
+
+        if (monthlyEmiInput) {
+            monthlyEmiInput.value = monthlyEmi.toFixed(2);
+        }
+
+        if (summaryFinanceAmount) {
+            summaryFinanceAmount.innerText = formatMoney(financeAmount);
+        }
+
+        if (summaryInterestAmount) {
+            summaryInterestAmount.innerText = formatMoney(interestAmount);
+        }
+
+        if (summaryTotalWithInterest) {
+            summaryTotalWithInterest.innerText = formatMoney(totalWithInterest);
+        }
+    }
+
+    function toggleFinanceFields() {
+        if (!settlementSelect) {
+            return;
+        }
+
+        const isFinance = settlementSelect.value === 'finance';
+
+        financeFields.forEach(function(field) {
+            field.style.display = isFinance ? 'flex' : 'none';
+        });
+
+        financeSummaryItems.forEach(function(item) {
+            item.style.display = isFinance ? 'block' : 'none';
+        });
+
+        calculateBillAmounts();
+    }
+
+    function toggleUpiFields() {
+        if (!paymentTypeSelect) {
+            return;
+        }
+
+        const isUpi = paymentTypeSelect.value === 'upi';
+
+        upiFields.forEach(function(field) {
+            field.style.display = isUpi ? 'flex' : 'none';
+        });
+    }
+
+    if (bikeSelect) {
+        bikeSelect.addEventListener('change', updateBikePrice);
+    }
+
+    if (advanceInput) {
+        advanceInput.addEventListener('input', calculateBillAmounts);
+    }
+
+    if (financeDownPaymentInput) {
+        financeDownPaymentInput.addEventListener('input', calculateBillAmounts);
+    }
+
+    if (financeInterestPercentageInput) {
+        financeInterestPercentageInput.addEventListener('input', calculateBillAmounts);
+    }
+
+    if (financeMonthsInput) {
+        financeMonthsInput.addEventListener('input', calculateBillAmounts);
+    }
+
+    if (settlementSelect) {
+        settlementSelect.addEventListener('change', toggleFinanceFields);
+    }
+
+    if (paymentTypeSelect) {
+        paymentTypeSelect.addEventListener('change', toggleUpiFields);
+    }
+
+    updateBikePrice();
+    calculateBillAmounts();
+    toggleFinanceFields();
+    toggleUpiFields();
+</script>
+
+{% endblock %}

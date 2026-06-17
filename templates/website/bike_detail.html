@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="bike-detail-page">
+    <div class="bike-detail-container">
+
+        <div class="bike-detail-gallery">
+            <div class="bike-detail-image-card">
+                {% if bike.bike_photo %}
+                    <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
+                {% else %}
+                    <div class="no-bike-image">
+                        <span>No Image Available</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bike-trust-card">
+                <h3>Shop Assurance</h3>
+                <ul>
+                    <li>Verified bike details</li>
+                    <li>Vendor information maintained</li>
+                    <li>Transparent pricing</li>
+                    <li>Easy enquiry support</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bike-detail-content">
+            <div class="bike-status-row">
+                <span class="bike-status-badge {% if bike.status == 'sold' %}sold-status{% else %}available-status{% endif %}">
+                    {{ bike.get_status_display }}
+                </span>
+
+                {% if bike.is_featured %}
+                    <span class="featured-badge">Featured</span>
+                {% endif %}
+            </div>
+
+            <h1>{{ bike.bike_name }}</h1>
+
+            <div class="bike-price-box">
+                <span>Price</span>
+                <h2>₹ {{ bike.selling_price }}</h2>
+            </div>
+
+            <div class="bike-description-box">
+                <h3>Description</h3>
+                <p>{{ bike.description }}</p>
+            </div>
+
+            <div class="bike-spec-grid">
+                <div class="bike-spec-item">
+                    <span>Brand</span>
+                    <strong>{{ bike.brand }}</strong>
+                </div>
+
+                <div class="bike-spec-item">
+                    <span>Model Year</span>
+                    <strong>{{ bike.model_year }}</strong>
+                </div>
+
+                <div class="bike-spec-item">
+                    <span>Registration Number</span>
+                    <strong>{{ bike.registration_number }}</strong>
+                </div>
+
+                <div class="bike-spec-item">
+                    <span>KM Driven</span>
+                    <strong>{{ bike.km_driven }} KM</strong>
+                </div>
+
+                <div class="bike-spec-item">
+                    <span>Fuel Type</span>
+                    <strong>{{ bike.fuel_type }}</strong>
+                </div>
+
+                <div class="bike-spec-item">
+                    <span>Ownership</span>
+                    <strong>{{ bike.ownership|default:"Not Mentioned" }}</strong>
+                </div>
+            </div>
+
+            <div class="bike-detail-actions">
+                <a href="{% url 'contact' %}" class="btn">Contact Now</a>
+                <a href="{% url 'available_bikes' %}" class="btn-secondary">Back to Bikes</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

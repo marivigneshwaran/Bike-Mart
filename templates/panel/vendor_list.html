@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="admin-layout">
+    {% comment %} <aside class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        <a href="{% url 'bike_list' %}">Bike Details</a>
+        <a href="{% url 'customer_list' %}">Customer Details</a>
+        <a href="{% url 'vendor_list' %}">Vendor Details</a>
+        <a href="{% url 'employee_list' %}">Employee Details</a>
+        <a href="{% url 'shop_settings_update' %}">Shop Settings</a>
+    </aside> {% endcomment %}
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Vendor Details</h1>
+                <p class="admin-subtitle">Manage bike source/vendor details.</p>
+            </div>
+
+            <a href="{% url 'vendor_create' %}" class="btn-small">Add Vendor</a>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>ID Proof No</th>
+                    <th>ID File</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for vendor in vendors %}
+                <tr>
+                    <td>
+                        {% if vendor.photo %}
+                            <img src="{{ vendor.photo.url }}" class="table-img">
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ vendor.name }}</td>
+                    <td>{{ vendor.phone }}</td>
+                    <td>{{ vendor.email|default:"-" }}</td>
+                    <td>{{ vendor.address|default:"-" }}</td>
+                    <td>{{ vendor.id_proof|default:"-" }}</td>
+                    <td>
+                        {% if vendor.id_proof_file %}
+                            <a href="{{ vendor.id_proof_file.url }}" target="_blank">View</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'vendor_update' vendor.id %}" class="edit-btn">Edit</a>
+                            <a href="{% url 'vendor_delete' vendor.id %}" class="delete-btn" onclick="return confirm('Delete this vendor?')">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No vendors found.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
