@@ -2231,8 +2231,8 @@ th {
     }
 }
 /* =====================================================
-   MOBILE ADMIN SIDEBAR DRAWER
-   Only changes admin sidebar behavior on mobile
+   MOBILE ADMIN SIDEBAR DRAWER - FIXED PROPERLY
+   Only affects mobile admin sidebar
 ===================================================== */
 
 .mobile-sidebar-toggle,
@@ -2242,99 +2242,158 @@ th {
 }
 
 @media(max-width: 768px) {
+
+    /*
+      Keep admin page clean.
+      Sidebar will not occupy page height in mobile.
+    */
     .admin-layout {
         display: block !important;
+        width: 100% !important;
         padding-top: 0 !important;
+        position: relative !important;
     }
 
     .admin-content {
         margin-left: 0 !important;
         width: 100% !important;
-        padding: 24px 16px 42px !important;
+        padding: 26px 14px 42px !important;
     }
 
+    /*
+      Menu button fixed below top navbar.
+      Small, neat, and always visible.
+    */
     .mobile-sidebar-toggle {
         display: flex !important;
-        position: fixed;
-        left: 12px;
-        top: 82px;
-        width: 42px;
-        height: 42px;
-        border: none;
-        border-radius: 50%;
-        background: #f97316;
-        color: #ffffff;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        font-weight: bold;
-        z-index: 12000;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
-        cursor: pointer;
+        position: fixed !important;
+        left: 14px !important;
+        top: 82px !important;
+        width: 38px !important;
+        height: 38px !important;
+        border: none !important;
+        border-radius: 50% !important;
+        background: #f97316 !important;
+        color: #ffffff !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 21px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+        z-index: 15000 !important;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25) !important;
+        cursor: pointer !important;
     }
 
-    .mobile-sidebar-close {
-        display: flex !important;
-        position: absolute;
-        right: 16px;
-        top: 16px;
-        width: 34px;
-        height: 34px;
-        border: none;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.12);
-        color: white;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        cursor: pointer;
+    /*
+      When sidebar is open, hide the orange menu button.
+      This prevents it from sitting on top of sidebar text.
+    */
+    .sidebar.active ~ .sidebar-overlay + .mobile-sidebar-toggle,
+    body.sidebar-open .mobile-sidebar-toggle {
+        display: none !important;
     }
 
+    /*
+      Sidebar drawer.
+      Starts hidden at left.
+    */
     .sidebar {
         position: fixed !important;
         top: 0 !important;
-        left: -280px !important;
-        width: 260px !important;
+        left: -285px !important;
+        width: 275px !important;
         height: 100vh !important;
-        padding: 72px 24px 24px !important;
         background: #111827 !important;
-        z-index: 11999 !important;
+        color: #ffffff !important;
+        z-index: 14999 !important;
+        padding: 70px 22px 28px !important;
         overflow-y: auto !important;
-        transition: left 0.3s ease !important;
-        box-shadow: 14px 0 35px rgba(15, 23, 42, 0.28);
+        overflow-x: hidden !important;
+        transition: left 0.28s ease !important;
+        box-shadow: 16px 0 40px rgba(15, 23, 42, 0.35) !important;
     }
 
     .sidebar.active {
         left: 0 !important;
     }
 
+    /*
+      Close button placed safely at top-right.
+      It will not hide Admin Panel text.
+    */
+    .mobile-sidebar-close {
+        display: flex !important;
+        position: absolute !important;
+        right: 16px !important;
+        top: 16px !important;
+        width: 32px !important;
+        height: 32px !important;
+        border: none !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+    }
+
+    .mobile-sidebar-close:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+
     .sidebar h2 {
         font-size: 24px !important;
-        margin-bottom: 18px !important;
+        line-height: 1.2 !important;
+        margin: 0 42px 20px 0 !important;
+        color: #ffffff !important;
+        white-space: nowrap !important;
     }
 
     .sidebar a {
         display: block !important;
-        color: white !important;
-        font-size: 15px !important;
+        width: 100% !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
         padding: 12px 0 !important;
+        margin: 0 !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
         text-decoration: none !important;
+        white-space: nowrap !important;
     }
 
+    .sidebar a:hover {
+        color: #f97316 !important;
+    }
+
+    /*
+      Dark overlay.
+    */
     .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.55);
-        z-index: 11998;
+        display: none !important;
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(15, 23, 42, 0.58) !important;
+        z-index: 14998 !important;
     }
 
     .sidebar-overlay.active {
-        display: block;
+        display: block !important;
     }
 
-    .admin-content {
-        padding-top: 72px !important;
+    /*
+      Add small top space so dashboard card does not touch menu button.
+    */
+    .dashboard-top-header,
+    .dashboard-hero,
+    .dashboard-banner,
+    .dashboard-header-card,
+    .admin-content > .admin-header,
+    .admin-content > .form-page-header {
+        margin-top: 18px !important;
     }
 }
