@@ -18,7 +18,7 @@ urlpatterns = [
 
     # Admin panel
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('admin-dashboard/shop-settings/', views.shop_settings_update, name='shop_settings_update'),
+    path('admin-dashboard/shop-settings/', views.shop_setting, name='shop_settings'),
 
     # Bike management
     path('admin-dashboard/bikes/', views.bike_list, name='bike_list'),
