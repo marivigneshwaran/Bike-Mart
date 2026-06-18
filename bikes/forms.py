@@ -169,6 +169,87 @@ class ShopSettingForm(forms.ModelForm):
             'short_description': forms.Textarea(attrs={'placeholder': 'Short shop description', 'rows': 4}),
         }
 
+class SignupForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Enter password'
+        })
+    )
+
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Confirm password'
+        })
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'password',
+            'confirm_password',
+        ]
+
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'placeholder': 'First Name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'placeholder': 'Last Name'
+            }),
+            'username': forms.TextInput(attrs={
+                'placeholder': 'Username'
+            }),
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Email Address'
+            }),
+        }
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('This username is already taken.')
+
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError('This email is already registered.')
+
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError('Password and confirm password do not match.')
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        user.set_password(self.cleaned_data['password'])
+
+        # Signup users are staff users but inactive until admin approval
+        user.is_staff = True
+        user.is_superuser = False
+        user.is_active = False
+
+        if commit:
+            user.save()
+
+        return user
+
 
 class AdminUserForm(forms.ModelForm):
     password = forms.CharField(

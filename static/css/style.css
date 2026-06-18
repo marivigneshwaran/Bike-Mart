@@ -2161,3 +2161,177 @@ body:not(:has(.admin-layout)) .footer {
         padding: 26px;
     }
 }
+/* -----------------------------
+   Login / Signup Page Fixed UI
+------------------------------ */
+
+.auth-page {
+    min-height: calc(100vh - 70px);
+    padding: 110px 20px 60px;
+    background: linear-gradient(135deg, #111827, #1f2937);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    width: 430px;
+    max-width: 100%;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 34px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.signup-card {
+    width: 760px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-badge {
+    display: inline-block;
+    background: #ffedd5;
+    color: #f97316;
+    padding: 7px 15px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 14px;
+}
+
+.auth-header h1 {
+    font-size: 34px;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.auth-header p {
+    color: #6b7280;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.auth-form {
+    width: 100%;
+}
+
+.auth-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 22px;
+}
+
+.auth-form-group {
+    margin-bottom: 18px;
+}
+
+.auth-form-group label {
+    display: block;
+    font-weight: bold;
+    color: #374151;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.auth-form-group input {
+    width: 100%;
+    height: 46px;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #f9fafb;
+    outline: none;
+    font-size: 15px;
+}
+
+.auth-form-group input:focus {
+    border-color: #f97316;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+}
+
+.auth-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 22px;
+}
+
+.auth-footer p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: #f97316;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.form-error-box {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px 15px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.field-error {
+    color: #dc2626 !important;
+    font-size: 12px;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Public auth pages should not be affected by admin fixed sidebar */
+body:has(.auth-page) .footer {
+    margin-left: 0 !important;
+}
+
+body:has(.auth-page) .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+/* -----------------------------
+   Responsive Auth Page
+------------------------------ */
+
+@media(max-width: 768px) {
+    .auth-page {
+        padding: 100px 15px 40px;
+        align-items: flex-start;
+    }
+
+    .auth-card,
+    .signup-card {
+        width: 100%;
+        padding: 26px;
+    }
+
+    .auth-form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .auth-header h1 {
+        font-size: 28px;
+    }
+}

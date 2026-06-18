@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="auth-page">
+    <div class="auth-card signup-card">
+        <div class="auth-header">
+            <span class="auth-badge">Create Account</span>
+            <h1>Staff Signup</h1>
+            <p>Create your BikeMart staff account. Admin approval is required before login.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error-box">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="auth-form-grid">
+                {% for field in form %}
+                    <div class="auth-form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn auth-btn">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>
+                Already have an account?
+                <a href="{% url 'admin_login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
