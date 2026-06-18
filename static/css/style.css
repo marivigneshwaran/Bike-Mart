@@ -2231,8 +2231,8 @@ th {
     }
 }
 /* =====================================================
-   MOBILE ADMIN SIDEBAR DRAWER - FIXED PROPERLY
-   Only affects mobile admin sidebar
+   MOBILE ADMIN SIDEBAR DRAWER - FINAL FIX
+   Only affects mobile admin pages
 ===================================================== */
 
 .mobile-sidebar-toggle,
@@ -2242,14 +2242,10 @@ th {
 }
 
 @media(max-width: 768px) {
-
-    /*
-      Keep admin page clean.
-      Sidebar will not occupy page height in mobile.
-    */
     .admin-layout {
         display: block !important;
         width: 100% !important;
+        min-height: auto !important;
         padding-top: 0 !important;
         position: relative !important;
     }
@@ -2257,98 +2253,81 @@ th {
     .admin-content {
         margin-left: 0 !important;
         width: 100% !important;
-        padding: 26px 14px 42px !important;
+        padding: 28px 14px 44px !important;
     }
 
-    /*
-      Menu button fixed below top navbar.
-      Small, neat, and always visible.
-    */
     .mobile-sidebar-toggle {
         display: flex !important;
         position: fixed !important;
-        left: 14px !important;
-        top: 82px !important;
+        left: 10px !important;
+        top: 76px !important;
         width: 38px !important;
         height: 38px !important;
-        border: none !important;
+        border: 0 !important;
         border-radius: 50% !important;
         background: #f97316 !important;
         color: #ffffff !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 21px !important;
+        font-size: 22px !important;
         font-weight: 800 !important;
         line-height: 1 !important;
-        z-index: 15000 !important;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25) !important;
+        z-index: 30000 !important;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.28) !important;
         cursor: pointer !important;
     }
 
-    /*
-      When sidebar is open, hide the orange menu button.
-      This prevents it from sitting on top of sidebar text.
-    */
-    .sidebar.active ~ .sidebar-overlay + .mobile-sidebar-toggle,
     body.sidebar-open .mobile-sidebar-toggle {
         display: none !important;
     }
 
-    /*
-      Sidebar drawer.
-      Starts hidden at left.
-    */
     .sidebar {
         position: fixed !important;
         top: 0 !important;
         left: -285px !important;
-        width: 275px !important;
+        width: 270px !important;
+        max-width: 82vw !important;
         height: 100vh !important;
         background: #111827 !important;
         color: #ffffff !important;
-        z-index: 14999 !important;
-        padding: 70px 22px 28px !important;
+        padding: 64px 22px 28px !important;
+        z-index: 30002 !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         transition: left 0.28s ease !important;
-        box-shadow: 16px 0 40px rgba(15, 23, 42, 0.35) !important;
+        box-shadow: 18px 0 45px rgba(15, 23, 42, 0.4) !important;
+        display: block !important;
     }
 
     .sidebar.active {
         left: 0 !important;
     }
 
-    /*
-      Close button placed safely at top-right.
-      It will not hide Admin Panel text.
-    */
     .mobile-sidebar-close {
         display: flex !important;
         position: absolute !important;
-        right: 16px !important;
-        top: 16px !important;
+        right: 14px !important;
+        top: 14px !important;
         width: 32px !important;
         height: 32px !important;
-        border: none !important;
+        border: 0 !important;
         border-radius: 50% !important;
-        background: rgba(255, 255, 255, 0.12) !important;
+        background: rgba(255, 255, 255, 0.14) !important;
         color: #ffffff !important;
         align-items: center !important;
         justify-content: center !important;
         font-size: 16px !important;
-        font-weight: bold !important;
+        font-weight: 800 !important;
         line-height: 1 !important;
         cursor: pointer !important;
-    }
-
-    .mobile-sidebar-close:hover {
-        background: rgba(255, 255, 255, 0.2) !important;
+        z-index: 30003 !important;
     }
 
     .sidebar h2 {
-        font-size: 24px !important;
+        font-size: 23px !important;
         line-height: 1.2 !important;
-        margin: 0 42px 20px 0 !important;
+        margin: 0 45px 18px 0 !important;
+        padding: 0 !important;
         color: #ffffff !important;
         white-space: nowrap !important;
     }
@@ -2359,6 +2338,7 @@ th {
         color: #ffffff !important;
         font-size: 14px !important;
         font-weight: 600 !important;
+        line-height: 1.35 !important;
         padding: 12px 0 !important;
         margin: 0 !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -2370,30 +2350,54 @@ th {
         color: #f97316 !important;
     }
 
-    /*
-      Dark overlay.
-    */
     .sidebar-overlay {
         display: none !important;
         position: fixed !important;
         inset: 0 !important;
-        background: rgba(15, 23, 42, 0.58) !important;
-        z-index: 14998 !important;
+        background: rgba(15, 23, 42, 0.62) !important;
+        z-index: 30001 !important;
     }
 
     .sidebar-overlay.active {
         display: block !important;
     }
 
-    /*
-      Add small top space so dashboard card does not touch menu button.
-    */
-    .dashboard-top-header,
-    .dashboard-hero,
-    .dashboard-banner,
-    .dashboard-header-card,
+    .admin-content > .dashboard-top-header,
+    .admin-content > .dashboard-hero,
+    .admin-content > .dashboard-banner,
+    .admin-content > .dashboard-header-card,
     .admin-content > .admin-header,
     .admin-content > .form-page-header {
         margin-top: 18px !important;
+    }
+}
+
+@media(max-width: 420px) {
+    .mobile-sidebar-toggle {
+        top: 74px !important;
+        left: 9px !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 20px !important;
+    }
+
+    .sidebar {
+        width: 255px !important;
+        max-width: 84vw !important;
+        left: -270px !important;
+        padding: 62px 20px 26px !important;
+    }
+
+    .sidebar.active {
+        left: 0 !important;
+    }
+
+    .sidebar h2 {
+        font-size: 22px !important;
+    }
+
+    .sidebar a {
+        font-size: 13px !important;
+        padding: 11px 0 !important;
     }
 }

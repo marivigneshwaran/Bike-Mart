@@ -1,7 +1,3 @@
-<button class="mobile-sidebar-toggle" type="button" id="sidebarToggleBtn">
-    ☰
-</button>
-
 <div class="sidebar" id="adminSidebar">
     <button class="mobile-sidebar-close" type="button" id="sidebarCloseBtn">
         ✕
@@ -22,31 +18,57 @@
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+<button class="mobile-sidebar-toggle" type="button" id="sidebarToggleBtn">
+    ☰
+</button>
+
 <script>
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
-    const adminSidebar = document.getElementById('adminSidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        const adminSidebar = document.getElementById('adminSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    function openSidebar() {
-        adminSidebar.classList.add('active');
-        sidebarOverlay.classList.add('active');
-    }
+        function openSidebar() {
+            if (adminSidebar) {
+                adminSidebar.classList.add('active');
+            }
 
-    function closeSidebar() {
-        adminSidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-    }
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.add('active');
+            }
 
-    if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', openSidebar);
-    }
+            document.body.classList.add('sidebar-open');
+        }
 
-    if (sidebarCloseBtn) {
-        sidebarCloseBtn.addEventListener('click', closeSidebar);
-    }
+        function closeSidebar() {
+            if (adminSidebar) {
+                adminSidebar.classList.remove('active');
+            }
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeSidebar);
-    }
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.remove('active');
+            }
+
+            document.body.classList.remove('sidebar-open');
+        }
+
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', openSidebar);
+        }
+
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', closeSidebar);
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+    });
 </script>
