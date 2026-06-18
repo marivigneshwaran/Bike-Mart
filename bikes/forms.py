@@ -291,19 +291,30 @@ class AdminUserForm(forms.ModelForm):
         else:
             self.fields['password'].required = True
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
+def save(self, commit=True):
+    user = super().save(commit=False)
 
-        role = self.cleaned_data.get('role')
-        password = self.cleaned_data.get('password')
+    user.set_password(self.cleaned_data['password'])
 
+    username = self.cleaned_data.get('username')
+
+    # Temporary bootstrap rule:
+    # If username is admin, make this account active superuser.
+    # After login succeeds, you can remove this special condition.
+    if username == 'admin':
         user.is_staff = True
-        user.is_superuser = role == 'admin'
+        user.is_superuser = True
+        user.is_active = True
+    elif not User.objects.exists():
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+    else:
+        user.is_staff = True
+        user.is_superuser = False
+        user.is_active = False
 
-        if password:
-            user.set_password(password)
+    if commit:
+        user.save()
 
-        if commit:
-            user.save()
-
-        return user
+    return user
