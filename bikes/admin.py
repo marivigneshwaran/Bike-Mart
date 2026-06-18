@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (
     Bike,
+    BikeImage,
     Customer,
     Vendor,
     Testimonial,
@@ -9,6 +10,11 @@ from .models import (
     Employee,
     BillPayment,
 )
+
+
+class BikeImageInline(admin.TabularInline):
+    model = BikeImage
+    extra = 1
 
 
 @admin.register(Bike)
@@ -24,6 +30,12 @@ class BikeAdmin(admin.ModelAdmin):
     )
     list_filter = ('status', 'brand', 'model_year', 'is_featured')
     search_fields = ('bike_name', 'brand', 'registration_number')
+    inlines = [BikeImageInline]
+
+@admin.register(BikeImage)
+class BikeImageAdmin(admin.ModelAdmin):
+    list_display = ('bike', 'caption', 'uploaded_at')
+    search_fields = ('bike__bike_name', 'caption')
 
 
 @admin.register(Customer)
