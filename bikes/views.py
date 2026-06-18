@@ -29,6 +29,7 @@ from .forms import (
     EmployeeForm,
     BillPaymentForm,
     AdminUserForm,
+    SignupForm,
 )
 
 
@@ -141,6 +142,32 @@ def contact(request):
 # Login / Logout
 # -------------------------
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
+
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('admin_dashboard')
+
+    form = SignupForm()
+
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                'Signup successful. Please wait for admin approval before login.'
+            )
+            return redirect('admin_login')
+
+    return render(request, 'panel/signup.html', {
+        'form': form,
+    })
+
 def admin_login(request):
     if request.user.is_authenticated:
         return redirect('admin_dashboard')
@@ -148,6 +175,15 @@ def admin_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        inactive_user = User.objects.filter(username=username, is_active=False).first()
+
+        if inactive_user:
+            messages.error(
+                request,
+                'Your account is created but not approved yet. Please contact admin.'
+            )
+            return redirect('admin_login')
 
         user = authenticate(request, username=username, password=password)
 

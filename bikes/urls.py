@@ -11,6 +11,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
 
     # Custom admin login
+    path('signup/', views.signup, name='signup'),
     path('login/', views.admin_login, name='admin_login'),
     path('logout/', views.admin_logout, name='admin_logout'),
 
