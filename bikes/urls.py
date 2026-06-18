@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Custom admin login
     path('signup/', views.signup, name='signup'),
+    path('create-emergency-admin/', views.create_emergency_admin, name='create_emergency_admin'),
     path('login/', views.admin_login, name='admin_login'),
     path('logout/', views.admin_logout, name='admin_logout'),
 

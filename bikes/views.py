@@ -195,6 +195,34 @@ def admin_login(request):
 
     return render(request, 'panel/login.html')
 
+def create_emergency_admin(request):
+    """
+    Temporary emergency admin creation URL for Render deployment.
+    Remove this view and URL after login works.
+    """
+
+    username = "admin"
+    email = "marisankar78@gmail.com"
+    password = "admin@12345"
+
+    user, created = User.objects.get_or_create(username=username)
+
+    user.email = email
+    user.first_name = "Admin"
+    user.last_name = "User"
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
+    user.set_password(password)
+    user.save()
+
+    messages.success(
+        request,
+        "Emergency admin user is ready. Username: admin, Password: admin@12345"
+    )
+
+    return redirect('admin_login')
+
 
 @login_required
 def admin_logout(request):
