@@ -46,6 +46,18 @@ class Bike(models.Model):
     def __str__(self):
         return f"{self.bike_name} - {self.registration_number}"
 
+class BikeImage(models.Model):
+    bike = models.ForeignKey(
+        Bike,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(upload_to='bike_photos/')
+    caption = models.CharField(max_length=150, blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.bike.bike_name} Image"
 
 class Customer(models.Model):
     bike = models.ForeignKey(Bike, on_delete=models.SET_NULL, null=True, blank=True)

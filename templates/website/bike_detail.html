@@ -3,20 +3,40 @@
 {% block content %}
 
 <section class="bike-detail-page">
-    <div class="bike-detail-container">
+    <div class="bike-detail-wrapper">
 
-        <div class="bike-detail-gallery">
-            <div class="bike-detail-image-card">
-                {% if bike.bike_photo %}
-                    <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
-                {% else %}
-                    <div class="no-bike-image">
-                        <span>No Image Available</span>
+        <div class="bike-detail-left">
+            <div class="bike-gallery-card">
+                {% if bike_images %}
+                    <div class="bike-main-image-box">
+                        <button class="gallery-arrow gallery-prev" type="button">‹</button>
+
+                        <img
+                            id="bikeMainImage"
+                            src="{{ bike_images.0.url }}"
+                            alt="{{ bike.bike_name }}"
+                        >
+
+                        <button class="gallery-arrow gallery-next" type="button">›</button>
                     </div>
+
+                    <div class="bike-thumbnail-row">
+                        {% for image in bike_images %}
+                            <button
+                                type="button"
+                                class="bike-thumb-btn {% if forloop.first %}active{% endif %}"
+                                data-image="{{ image.url }}"
+                            >
+                                <img src="{{ image.url }}" alt="{{ image.caption }}">
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bike-detail-no-image">No Image Available</div>
                 {% endif %}
             </div>
 
-            <div class="bike-trust-card">
+            <div class="shop-assurance-box">
                 <h3>Shop Assurance</h3>
                 <ul>
                     <li>Verified bike details</li>
@@ -27,58 +47,50 @@
             </div>
         </div>
 
-        <div class="bike-detail-content">
-            <div class="bike-status-row">
-                <span class="bike-status-badge {% if bike.status == 'sold' %}sold-status{% else %}available-status{% endif %}">
-                    {{ bike.get_status_display }}
-                </span>
-
-                {% if bike.is_featured %}
-                    <span class="featured-badge">Featured</span>
-                {% endif %}
-            </div>
+        <div class="bike-detail-info-card">
+            <span class="bike-status-pill">{{ bike.get_status_display }}</span>
 
             <h1>{{ bike.bike_name }}</h1>
 
-            <div class="bike-price-box">
+            <div class="price-highlight">
                 <span>Price</span>
-                <h2>₹ {{ bike.selling_price }}</h2>
+                <strong>₹ {{ bike.selling_price }}</strong>
             </div>
 
-            <div class="bike-description-box">
+            <div class="bike-description-block">
                 <h3>Description</h3>
                 <p>{{ bike.description }}</p>
             </div>
 
-            <div class="bike-spec-grid">
-                <div class="bike-spec-item">
+            <div class="bike-info-grid">
+                <div>
                     <span>Brand</span>
                     <strong>{{ bike.brand }}</strong>
                 </div>
 
-                <div class="bike-spec-item">
+                <div>
                     <span>Model Year</span>
                     <strong>{{ bike.model_year }}</strong>
                 </div>
 
-                <div class="bike-spec-item">
+                <div>
                     <span>Registration Number</span>
                     <strong>{{ bike.registration_number }}</strong>
                 </div>
 
-                <div class="bike-spec-item">
+                <div>
                     <span>KM Driven</span>
                     <strong>{{ bike.km_driven }} KM</strong>
                 </div>
 
-                <div class="bike-spec-item">
+                <div>
                     <span>Fuel Type</span>
                     <strong>{{ bike.fuel_type }}</strong>
                 </div>
 
-                <div class="bike-spec-item">
+                <div>
                     <span>Ownership</span>
-                    <strong>{{ bike.ownership|default:"Not Mentioned" }}</strong>
+                    <strong>{{ bike.ownership|default:"-" }}</strong>
                 </div>
             </div>
 
@@ -90,5 +102,63 @@
 
     </div>
 </section>
+
+<script>
+    const mainImage = document.getElementById('bikeMainImage');
+    const thumbnails = document.querySelectorAll('.bike-thumb-btn');
+    const prevBtn = document.querySelector('.gallery-prev');
+    const nextBtn = document.querySelector('.gallery-next');
+
+    let currentIndex = 0;
+
+    function setActiveImage(index) {
+        if (!mainImage || thumbnails.length === 0) {
+            return;
+        }
+
+        currentIndex = index;
+
+        const selectedThumb = thumbnails[currentIndex];
+        const imageUrl = selectedThumb.getAttribute('data-image');
+
+        mainImage.src = imageUrl;
+
+        thumbnails.forEach(function(thumb) {
+            thumb.classList.remove('active');
+        });
+
+        selectedThumb.classList.add('active');
+    }
+
+    thumbnails.forEach(function(thumb, index) {
+        thumb.addEventListener('click', function() {
+            setActiveImage(index);
+        });
+    });
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            let newIndex = currentIndex - 1;
+
+            if (newIndex < 0) {
+                newIndex = thumbnails.length - 1;
+            }
+
+            setActiveImage(newIndex);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            let newIndex = currentIndex + 1;
+
+            if (newIndex >= thumbnails.length) {
+                newIndex = 0;
+            }
+
+            setActiveImage(newIndex);
+        });
+    }
+</script>
 
 {% endblock %}

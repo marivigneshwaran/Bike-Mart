@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from .models import (
     Bike,
+    BikeImage,
     Customer,
     Vendor,
     Testimonial,
@@ -113,7 +114,25 @@ def sold_bikes(request):
 
 def bike_detail(request, bike_id):
     bike = get_object_or_404(Bike, id=bike_id)
-    return render(request, 'website/bike_detail.html', {'bike': bike})
+
+    bike_images = []
+
+    if bike.bike_photo:
+        bike_images.append({
+            'url': bike.bike_photo.url,
+            'caption': bike.bike_name,
+        })
+
+    for image in bike.images.all().order_by('uploaded_at'):
+        bike_images.append({
+            'url': image.image.url,
+            'caption': image.caption or bike.bike_name,
+        })
+
+    return render(request, 'website/bike_detail.html', {
+        'bike': bike,
+        'bike_images': bike_images,
+    })
 
 
 def contact(request):
@@ -399,12 +418,26 @@ def bike_create(request):
 
     if request.method == 'POST':
         form = BikeForm(request.POST, request.FILES, user=request.user)
+
         if form.is_valid():
-            form.save()
+            bike = form.save()
+
+            extra_images = request.FILES.getlist('extra_images')
+
+            for image in extra_images:
+                BikeImage.objects.create(
+                    bike=bike,
+                    image=image
+                )
+
             messages.success(request, 'Bike added successfully.')
             return redirect('bike_list')
 
-    return render(request, 'panel/bike_form.html', {'form': form, 'title': 'Add Bike'})
+    return render(request, 'panel/bike_form.html', {
+        'form': form,
+        'title': 'Add Bike',
+        'bike': None,
+    })
 
 
 @login_required
@@ -413,14 +446,42 @@ def bike_update(request, bike_id):
     form = BikeForm(instance=bike, user=request.user)
 
     if request.method == 'POST':
-        form = BikeForm(request.POST, request.FILES, instance=bike, user=request.user)
+        form = BikeForm(
+            request.POST,
+            request.FILES,
+            instance=bike,
+            user=request.user
+        )
+
         if form.is_valid():
-            form.save()
+            bike = form.save()
+
+            extra_images = request.FILES.getlist('extra_images')
+
+            for image in extra_images:
+                BikeImage.objects.create(
+                    bike=bike,
+                    image=image
+                )
+
             messages.success(request, 'Bike updated successfully.')
             return redirect('bike_list')
 
-    return render(request, 'panel/bike_form.html', {'form': form, 'title': 'Edit Bike'})
+    return render(request, 'panel/bike_form.html', {
+        'form': form,
+        'title': 'Edit Bike',
+        'bike': bike,
+    })
 
+@login_required
+def bike_image_delete(request, image_id):
+    bike_image = get_object_or_404(BikeImage, id=image_id)
+    bike_id = bike_image.bike.id
+
+    bike_image.delete()
+
+    messages.success(request, 'Bike image deleted successfully.')
+    return redirect('bike_update', bike_id=bike_id)
 
 @login_required
 def bike_delete(request, bike_id):

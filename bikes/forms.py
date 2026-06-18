@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from .models import (
     Bike,
+    BikeImage,
     Customer,
     Vendor,
     ContactInquiry,
@@ -24,6 +25,11 @@ class BikeForm(forms.ModelForm):
 
         if self.user and not self.user.is_superuser:
             self.fields.pop('buying_price', None)
+
+class BikeImageForm(forms.ModelForm):
+    class Meta:
+        model = BikeImage
+        fields = ['image', 'caption']
 
 
 class CustomerForm(forms.ModelForm):

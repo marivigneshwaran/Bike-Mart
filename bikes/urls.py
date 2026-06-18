@@ -25,6 +25,11 @@ urlpatterns = [
     path('admin-dashboard/bikes/add/', views.bike_create, name='bike_create'),
     path('admin-dashboard/bikes/edit/<int:bike_id>/', views.bike_update, name='bike_update'),
     path('admin-dashboard/bikes/delete/<int:bike_id>/', views.bike_delete, name='bike_delete'),
+    path(
+        'admin-dashboard/bikes/image/delete/<int:image_id>/',
+        views.bike_image_delete,
+        name='bike_image_delete'
+    ),
 
     # Customer management
     path('admin-dashboard/customers/', views.customer_list, name='customer_list'),
