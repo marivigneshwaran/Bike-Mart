@@ -3,87 +3,95 @@
 {% block content %}
 
 <section class="admin-layout">
-    {% comment %} <aside class="sidebar">
-        <h2>Admin Panel</h2>
-        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
-        <a href="{% url 'bike_list' %}">Bike Details</a>
-        <a href="{% url 'customer_list' %}">Customer Details</a>
-        <a href="{% url 'vendor_list' %}">Vendor Details</a>
-        <a href="{% url 'employee_list' %}">Employee Details</a>
-        <a href="{% url 'shop_settings_update' %}">Shop Settings</a>
-    </aside> {% endcomment %}
     {% include 'panel/sidebar.html' %}
-    
+
     <div class="admin-content">
-        <div class="admin-header">
+
+        <div class="admin-header page-card-header">
             <div>
                 <h1>Customer Details</h1>
-                <p class="admin-subtitle">Manage customer enquiries and purchased bike details.</p>
+                <p class="admin-subtitle">Manage customer enquiries and contact records.</p>
             </div>
 
-            <a href="{% url 'customer_create' %}" class="btn-small">Add Customer</a>
+            <a href="{% url 'customer_create' %}" class="btn">Add Customer</a>
         </div>
 
         <div class="table-card">
             <table>
-                <tr>
-                    <th>Photo</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Selected Bike</th>
-                    <th>Purchased</th>
-                    <th>ID Proof</th>
-                    <th>Action</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>ID Proof No</th>
+                        <th>ID Proof File</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-                {% for customer in customers %}
-                <tr>
-                    <td>
-                        {% if customer.photo %}
-                            <img src="{{ customer.photo.url }}" class="table-img">
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>{{ customer.name }}</td>
-                    <td>{{ customer.phone }}</td>
-                    <td>{{ customer.email|default:"-" }}</td>
-                    <td>
-                        {% if customer.bike %}
-                            {{ customer.bike.bike_name }}
-                        {% else %}
-                            {{ customer.interested_bike|default:"-" }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if customer.purchased %}
-                            <span class="status-pill sold-pill">Purchased</span>
-                        {% else %}
-                            <span class="status-pill available-pill">Not Purchased</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if customer.id_proof_file %}
-                            <a href="{{ customer.id_proof_file.url }}" target="_blank">View</a>
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="{% url 'customer_update' customer.id %}" class="edit-btn">Edit</a>
-                            <a href="{% url 'customer_delete' customer.id %}" class="delete-btn" onclick="return confirm('Delete this customer?')">Delete</a>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8">No customers found.</td>
-                </tr>
-                {% endfor %}
+                <tbody>
+                    {% for customer in customers %}
+                        <tr>
+                            <td>
+                                {% if customer.photo %}
+                                    <img src="{{ customer.photo.url }}" class="table-img" alt="{{ customer.name }}">
+                                {% else %}
+                                    <div class="table-no-img">No Image</div>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ customer.name }}</td>
+
+                            <td>{{ customer.phone }}</td>
+
+                            <td>{{ customer.email|default:"-" }}</td>
+
+                            <td>
+                                {% if customer.address %}
+                                    {{ customer.address|truncatechars:35 }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if customer.id_proof_no %}
+                                    {{ customer.id_proof_no }}
+                                {% elif customer.id_proof_number %}
+                                    {{ customer.id_proof_number }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if customer.id_proof_file %}
+                                    <a href="{{ customer.id_proof_file.url }}" target="_blank">View</a>
+                                {% elif customer.id_proof %}
+                                    <a href="{{ customer.id_proof.url }}" target="_blank">View</a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'customer_update' customer.id %}" class="edit-btn">Edit</a>
+                                    <a href="{% url 'customer_delete' customer.id %}" class="delete-btn">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="empty-row">No customers found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
+
     </div>
 </section>
 
