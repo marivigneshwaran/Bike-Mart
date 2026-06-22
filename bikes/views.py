@@ -1,6 +1,15 @@
 import json
 from decimal import Decimal
 from urllib.parse import quote_plus
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import AuditLog
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+
+from .serializers import UserSerializer
 
 from django.db.models import Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
@@ -809,3 +818,54 @@ def user_delete(request, user_id):
     user_obj.delete()
     messages.success(request, 'User deleted successfully.')
     return redirect('user_list')
+
+@login_required
+def audit_log_list(request):
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to view audit logs.')
+        return redirect('admin_dashboard')
+
+    logs = AuditLog.objects.select_related('user').all()[:300]
+
+    return render(request, 'panel/audit_log_list.html', {
+        'logs': logs
+    })
+
+class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response({
+            'success': True,
+            'message': 'User details fetched successfully.',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+class JWTLogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get('refresh')
+
+        if not refresh_token:
+            return Response({
+                'success': False,
+                'message': 'Refresh token is required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({
+                'success': True,
+                'message': 'Logout successful. Token blacklisted.'
+            }, status=status.HTTP_200_OK)
+
+        except TokenError:
+            return Response({
+                'success': False,
+                'message': 'Invalid or already blacklisted token.'
+            }, status=status.HTTP_400_BAD_REQUEST)
