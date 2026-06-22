@@ -19,14 +19,18 @@ TRACKED_MODELS = (
 
 
 def clean_value(value):
+    if value is None:
+        return None
+
     if isinstance(value, (date, datetime)):
         return value.isoformat()
 
     if isinstance(value, Decimal):
         return str(value)
 
-    if hasattr(value, 'url'):
-        return str(value)
+    # Safe handling for ImageField/FileField
+    if hasattr(value, 'name'):
+        return value.name if value.name else None
 
     return value
 
