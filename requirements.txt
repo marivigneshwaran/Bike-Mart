@@ -7,3 +7,5 @@ psycopg2-binary==2.9.12
 python-dotenv==1.2.2
 cloudinary==1.44.1
 django-cloudinary-storage==0.3.0
+djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
