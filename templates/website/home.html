@@ -220,16 +220,76 @@
         <h2>Add Your Testimonial</h2>
         <p>Share your experience with our bike shop.</p>
 
-        <form method="POST">
+        <form method="POST" class="testimonial-form">
             {% csrf_token %}
 
             <input type="hidden" name="form_type" value="testimonial_form">
 
-            {{ testimonial_form.as_p }}
+            <div class="form-group">
+                <label for="id_customer_name">Customer Name</label>
+                {{ testimonial_form.customer_name }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ testimonial_form.email }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_message">Message</label>
+                {{ testimonial_form.message }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_rating">Rating</label>
+                {{ testimonial_form.rating }}
+            </div>
 
             <button type="submit" class="btn">Submit Feedback</button>
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const testimonialModal = document.getElementById('testimonialModal');
+        const openTestimonialModal = document.getElementById('openTestimonialModal');
+        const closeTestimonialModal = document.getElementById('closeTestimonialModal');
+
+        if (!testimonialModal) {
+            return;
+        }
+
+        function openModal() {
+            testimonialModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            testimonialModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (openTestimonialModal) {
+            openTestimonialModal.addEventListener('click', openModal);
+        }
+
+        if (closeTestimonialModal) {
+            closeTestimonialModal.addEventListener('click', closeModal);
+        }
+
+        testimonialModal.addEventListener('click', function (event) {
+            if (event.target === testimonialModal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    });
+</script>
 
 {% endblock %}

@@ -863,13 +863,13 @@ body {
 }
 
 .testimonial-modal {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(17, 24, 39, 0.75);
-    display: none;
+    background: rgba(15, 23, 42, 0.72);
+    z-index: 99999;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
     padding: 20px;
 }
 
@@ -878,24 +878,103 @@ body {
 }
 
 .testimonial-modal-card {
-    background: var(--white);
-    width: 480px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
     border-radius: 20px;
-    padding: 35px;
+    padding: 34px;
     position: relative;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.28);
+}
+
+.testimonial-modal-card h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #0f172a;
+}
+
+.testimonial-modal-card p {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.testimonial-modal-card form p {
+    margin-bottom: 16px;
+}
+
+.testimonial-modal-card label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 7px;
+    color: #0f172a;
+}
+
+.testimonial-modal-card input,
+.testimonial-modal-card textarea,
+.testimonial-modal-card select {
+    width: 100%;
+    border: 1.5px solid #d1d5db;
+    border-radius: 12px;
+    padding: 13px 15px;
+    font-size: 15px;
+    outline: none;
+    background: #ffffff;
+}
+
+.testimonial-modal-card textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.testimonial-modal-card input:focus,
+.testimonial-modal-card textarea:focus,
+.testimonial-modal-card select:focus {
+    border-color: #ff6b14;
+    box-shadow: 0 0 0 4px rgba(255, 107, 20, 0.12);
 }
 
 .modal-close {
     position: absolute;
-    right: 18px;
-    top: 14px;
+    top: 18px;
+    right: 22px;
     border: none;
     background: transparent;
-    font-size: 32px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
     cursor: pointer;
+    color: #0f172a;
 }
 
+.modal-close:hover {
+    color: #ff6b14;
+}
+
+.testimonial-modal-card .btn {
+    border: none;
+    background: #ff6b14;
+    color: #ffffff;
+    padding: 13px 26px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.testimonial-modal-card .btn:hover {
+    background: #ea580c;
+}
+
+@media (max-width: 576px) {
+    .testimonial-modal-card {
+        padding: 24px;
+        border-radius: 16px;
+    }
+
+    .testimonial-modal-card h2 {
+        font-size: 24px;
+    }
+}
 /* =====================================================
    Bike Detail Gallery
 ===================================================== */
