@@ -161,6 +161,12 @@ class BillPayment(models.Model):
         return self.payable_amount
 
     @property
+    def payment_status(self):
+        if self.payable_amount and self.payable_amount > 0:
+            return "Partial"
+        return "Full"
+
+    @property
     def profit_amount(self):
         buying_price = self.bike.buying_price or 0
         return self.final_price - buying_price

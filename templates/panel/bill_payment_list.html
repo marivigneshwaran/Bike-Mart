@@ -33,26 +33,37 @@
                 {% for bill in bills %}
                 <tr>
                     <td><strong>{{ bill.bill_no }}</strong></td>
+
                     <td>{{ bill.bill_date }}</td>
+
                     <td>
                         {{ bill.customer.name }}<br>
                         <small>{{ bill.customer.phone }}</small>
                     </td>
+
                     <td>
                         {{ bill.bike.bike_name }}<br>
                         <small>{{ bill.bike.registration_number }}</small>
                     </td>
+
                     <td>₹ {{ bill.final_price }}</td>
+
                     <td>₹ {{ bill.advance_amount }}</td>
+
                     <td>₹ {{ bill.payable_amount }}</td>
+
                     <td>
                         {% if bill.settlement_type == 'finance' %}
                             <span class="status-pill finance-pill">Finance</span>
+                        {% elif bill.payable_amount > 0 %}
+                            <span class="status-pill finance-pill">Partial</span>
                         {% else %}
                             <span class="status-pill available-pill">Full</span>
                         {% endif %}
                     </td>
+
                     <td>{{ bill.get_payment_type_display }}</td>
+
                     <td>
                         <div class="action-buttons">
                             <a href="{% url 'bill_payment_print' bill.id %}" target="_blank" class="print-btn">Print</a>
