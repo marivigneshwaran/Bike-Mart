@@ -1,9 +1,18 @@
 from django.urls import path
 from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # Public website
     path('', views.home, name='home'),
+    path('admin-dashboard/audit-logs/', views.audit_log_list, name='audit_log_list'),
+
+    # JWT API authentication
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/me/', views.CurrentUserAPIView.as_view(), name='api_current_user'),
+    path('api/logout/', views.JWTLogoutAPIView.as_view(), name='api_logout'),
+
     path('about/', views.about, name='about'),
     path('available-bikes/', views.available_bikes, name='available_bikes'),
     path('sold-bikes/', views.sold_bikes, name='sold_bikes'),

@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+from django.contrib.auth.models import User
 
 class Vendor(models.Model):
     name = models.CharField(max_length=150)
@@ -261,3 +261,30 @@ class ShopSetting(models.Model):
     class Meta:
         verbose_name = 'Shop Setting'
         verbose_name_plural = 'Shop Settings'
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = (
+        ('create', 'Created'),
+        ('update', 'Updated'),
+        ('delete', 'Deleted'),
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    model_name = models.CharField(max_length=100)
+    object_id = models.CharField(max_length=100, blank=True, null=True)
+    object_repr = models.CharField(max_length=255, blank=True, null=True)
+    old_values = models.JSONField(blank=True, null=True)
+    new_values = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.model_name} - {self.action}"
