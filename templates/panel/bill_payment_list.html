@@ -23,9 +23,9 @@
                     <th>Customer</th>
                     <th>Bike</th>
                     <th>Final Price</th>
-                    <th>Advance</th>
-                    <th>Payable</th>
-                    <th>Settlement</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>Status</th>
                     <th>Payment</th>
                     <th>Action</th>
                 </tr>
@@ -53,9 +53,9 @@
                     <td>₹ {{ bill.payable_amount }}</td>
 
                     <td>
-                        {% if bill.settlement_type == 'finance' %}
+                        {% if bill.bill_status == 'Finance' %}
                             <span class="status-pill finance-pill">Finance</span>
-                        {% elif bill.payable_amount > 0 %}
+                        {% elif bill.bill_status == 'Partial' %}
                             <span class="status-pill finance-pill">Partial</span>
                         {% else %}
                             <span class="status-pill available-pill">Full</span>

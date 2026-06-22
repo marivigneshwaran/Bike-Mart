@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from decimal import Decimal
+
 
 class Vendor(models.Model):
     name = models.CharField(max_length=150)
@@ -46,6 +48,7 @@ class Bike(models.Model):
     def __str__(self):
         return f"{self.bike_name} - {self.registration_number}"
 
+
 class BikeImage(models.Model):
     bike = models.ForeignKey(
         Bike,
@@ -58,6 +61,7 @@ class BikeImage(models.Model):
 
     def __str__(self):
         return f"{self.bike.bike_name} Image"
+
 
 class Customer(models.Model):
     bike = models.ForeignKey(Bike, on_delete=models.SET_NULL, null=True, blank=True)
@@ -128,14 +132,19 @@ class BillPayment(models.Model):
     bike = models.ForeignKey(Bike, on_delete=models.PROTECT)
 
     bike_price = models.DecimalField(max_digits=10, decimal_places=2)
-    advance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    advance_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text="Amount paid by customer"
+    )
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     payable_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0,
-        help_text="Final price minus advance amount"
+        help_text="Balance amount after paid amount"
     )
 
     settlement_type = models.CharField(max_length=20, choices=SETTLEMENT_CHOICES, default='full')
@@ -157,21 +166,36 @@ class BillPayment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
-    def balance_amount(self):
-        return self.payable_amount
+    def paid_amount(self):
+        return self.advance_amount or Decimal('0.00')
 
     @property
-    def payment_status(self):
-        if self.payable_amount and self.payable_amount > 0:
+    def balance_amount(self):
+        return self.payable_amount or Decimal('0.00')
+
+    @property
+    def bill_status(self):
+        if self.settlement_type == 'finance':
+            return "Finance"
+
+        if self.balance_amount > 0:
             return "Partial"
+
         return "Full"
 
     @property
+    def payment_status(self):
+        return self.bill_status
+
+    @property
     def profit_amount(self):
-        buying_price = self.bike.buying_price or 0
-        return self.final_price - buying_price
+        buying_price = self.bike.buying_price or Decimal('0.00')
+        final_price = self.final_price or Decimal('0.00')
+        return final_price - buying_price
 
     def save(self, *args, **kwargs):
+        zero = Decimal('0.00')
+
         if not self.bill_no:
             last_bill = BillPayment.objects.order_by('-id').first()
             next_number = 1
@@ -187,18 +211,35 @@ class BillPayment(models.Model):
         if not self.final_price:
             self.final_price = self.bike_price
 
+        if self.advance_amount is None:
+            self.advance_amount = zero
+
+        if self.final_price is None:
+            self.final_price = zero
+
+        # advance_amount is used as Paid Amount.
+        # payable_amount is used as Balance Amount.
         self.payable_amount = self.final_price - self.advance_amount
 
+        if self.payable_amount < zero:
+            self.payable_amount = zero
+
         if self.settlement_type == 'finance':
-            down_payment = self.finance_down_payment or 0
-            interest_percentage = self.finance_interest_percentage or 0
+            down_payment = self.finance_down_payment or zero
+            interest_percentage = self.finance_interest_percentage or zero
 
             self.finance_amount = self.final_price - down_payment
-            self.finance_interest_amount = self.finance_amount * interest_percentage / 100
+
+            if self.finance_amount < zero:
+                self.finance_amount = zero
+
+            self.finance_interest_amount = self.finance_amount * interest_percentage / Decimal('100')
             self.total_amount_include_interest = self.finance_amount + self.finance_interest_amount
 
             if self.finance_months and self.finance_months > 0:
                 self.monthly_emi = self.total_amount_include_interest / self.finance_months
+            else:
+                self.monthly_emi = None
         else:
             self.finance_company_name = None
             self.finance_down_payment = None
@@ -267,6 +308,7 @@ class ShopSetting(models.Model):
     class Meta:
         verbose_name = 'Shop Setting'
         verbose_name_plural = 'Shop Settings'
+
 
 class AuditLog(models.Model):
     ACTION_CHOICES = (
