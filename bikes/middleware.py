@@ -6,8 +6,10 @@ class AuditLogMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.user.is_authenticated:
-            set_current_user(request.user)
+        user = getattr(request, 'user', None)
+
+        if user and user.is_authenticated:
+            set_current_user(user)
         else:
             set_current_user(None)
 
