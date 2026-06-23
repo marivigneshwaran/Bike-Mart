@@ -22,6 +22,19 @@
             <a href="{% url 'bike_create' %}" class="btn-small">Add Bike</a>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search bike, brand, reg no, vendor" value="{{ search|default:'' }}">
+
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
+                <option value="sold" {% if status == 'sold' %}selected{% endif %}>Sold</option>
+            </select>
+
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'bike_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <tr>

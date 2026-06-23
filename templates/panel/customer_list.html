@@ -16,6 +16,12 @@
             <a href="{% url 'customer_create' %}" class="btn">Add Customer</a>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search name, phone, email, address" value="{{ search|default:'' }}">
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'customer_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <thead>

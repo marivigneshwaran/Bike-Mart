@@ -23,7 +23,15 @@
                         {% if field.name == 'finance_company_name' or field.name == 'finance_down_payment' or field.name == 'finance_amount' or field.name == 'finance_interest_percentage' or field.name == 'finance_interest_amount' or field.name == 'finance_months' or field.name == 'total_amount_include_interest' or field.name == 'monthly_emi' %} finance-field{% endif %}
                         {% if field.name == 'upi_id' %} upi-field{% endif %}
                     ">
-                        {{ field.label_tag }}
+
+                        {% if field.name == 'advance_amount' %}
+                            <label for="{{ field.id_for_label }}">Paid amount:</label>
+                        {% elif field.name == 'payable_amount' %}
+                            <label for="{{ field.id_for_label }}">Balance amount:</label>
+                        {% else %}
+                            {{ field.label_tag }}
+                        {% endif %}
+
                         {{ field }}
 
                         {% if field.errors %}
@@ -48,7 +56,7 @@
                     </div>
 
                     <div>
-                        <span>Payable Amount</span>
+                        <span>Balance Amount</span>
                         <strong id="summaryPayable">₹ 0.00</strong>
                     </div>
 
@@ -134,16 +142,16 @@
 
     function calculateBillAmounts() {
         const finalPrice = toNumber(finalPriceInput ? finalPriceInput.value : 0);
-        const advanceAmount = toNumber(advanceInput ? advanceInput.value : 0);
+        const paidAmount = toNumber(advanceInput ? advanceInput.value : 0);
 
-        let payableAmount = finalPrice - advanceAmount;
+        let balanceAmount = finalPrice - paidAmount;
 
-        if (payableAmount < 0) {
-            payableAmount = 0;
+        if (balanceAmount < 0) {
+            balanceAmount = 0;
         }
 
         if (payableInput) {
-            payableInput.value = payableAmount.toFixed(2);
+            payableInput.value = balanceAmount.toFixed(2);
         }
 
         calculateFinanceAmounts();
@@ -153,11 +161,11 @@
         }
 
         if (summaryAdvance) {
-            summaryAdvance.innerText = formatMoney(advanceAmount);
+            summaryAdvance.innerText = formatMoney(paidAmount);
         }
 
         if (summaryPayable) {
-            summaryPayable.innerText = formatMoney(payableAmount);
+            summaryPayable.innerText = formatMoney(balanceAmount);
         }
     }
 
@@ -246,6 +254,10 @@
 
     if (advanceInput) {
         advanceInput.addEventListener('input', calculateBillAmounts);
+    }
+
+    if (finalPriceInput) {
+        finalPriceInput.addEventListener('input', calculateBillAmounts);
     }
 
     if (financeDownPaymentInput) {

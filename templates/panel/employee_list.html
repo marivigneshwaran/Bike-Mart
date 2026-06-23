@@ -24,6 +24,19 @@
             <a href="{% url 'employee_create' %}" class="btn-small">Add Employee</a>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search employee, phone, email, designation" value="{{ search|default:'' }}">
+
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'employee_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <tr>

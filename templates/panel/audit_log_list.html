@@ -14,12 +14,40 @@
             </div>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search user, module, record, IP" value="{{ search|default:'' }}">
+
+            <select name="action">
+                <option value="">All Actions</option>
+                <option value="create" {% if action == 'create' %}selected{% endif %}>Created</option>
+                <option value="update" {% if action == 'update' %}selected{% endif %}>Updated</option>
+                <option value="delete" {% if action == 'delete' %}selected{% endif %}>Deleted</option>
+                <option value="login" {% if action == 'login' %}selected{% endif %}>Login</option>
+                <option value="logout" {% if action == 'logout' %}selected{% endif %}>Logout</option>
+            </select>
+
+            <select name="model_name">
+                <option value="">All Modules</option>
+                <option value="Bike" {% if model_name == 'Bike' %}selected{% endif %}>Bike</option>
+                <option value="Customer" {% if model_name == 'Customer' %}selected{% endif %}>Customer</option>
+                <option value="Vendor" {% if model_name == 'Vendor' %}selected{% endif %}>Vendor</option>
+                <option value="Employee" {% if model_name == 'Employee' %}selected{% endif %}>Employee</option>
+                <option value="BillPayment" {% if model_name == 'BillPayment' %}selected{% endif %}>Bill Payment</option>
+                <option value="ShopSetting" {% if model_name == 'ShopSetting' %}selected{% endif %}>Shop Setting</option>
+                <option value="User" {% if model_name == 'User' %}selected{% endif %}>User</option>
+            </select>
+
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'audit_log_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <thead>
                     <tr>
                         <th>Date & Time</th>
                         <th>User</th>
+                        <th>IP Address</th>
                         <th>Action</th>
                         <th>Module</th>
                         <th>Record</th>
@@ -37,6 +65,7 @@
                                 System
                             {% endif %}
                         </td>
+                        <td>{{ log.ip_address|default:"-" }}</td>
                         <td>{{ log.get_action_display }}</td>
                         <td>{{ log.model_name }}</td>
                         <td>{{ log.object_repr }}</td>

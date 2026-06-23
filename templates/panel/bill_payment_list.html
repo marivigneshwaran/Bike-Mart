@@ -15,6 +15,27 @@
             <a href="{% url 'bill_payment_create' %}" class="btn-small">Add Bill Payment</a>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search bill no, customer, bike, reg no" value="{{ search|default:'' }}">
+
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="full" {% if status == 'full' %}selected{% endif %}>Full</option>
+                <option value="partial" {% if status == 'partial' %}selected{% endif %}>Partial</option>
+                <option value="finance" {% if status == 'finance' %}selected{% endif %}>Finance</option>
+            </select>
+
+            <select name="payment_type">
+                <option value="">All Payment</option>
+                <option value="cash" {% if payment_type == 'cash' %}selected{% endif %}>Cash</option>
+                <option value="card" {% if payment_type == 'card' %}selected{% endif %}>Card</option>
+                <option value="upi" {% if payment_type == 'upi' %}selected{% endif %}>UPI</option>
+            </select>
+
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'bill_payment_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <tr>
