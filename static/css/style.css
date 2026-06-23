@@ -2592,3 +2592,54 @@ th {
         width: 100%;
     }
 }
+/* ADMIN PAGE HEADER COMPACT FIX */
+
+.admin-header,
+.form-page-header,
+.page-card-header {
+    padding: 22px 28px !important;
+    margin-bottom: 22px !important;
+    min-height: auto !important;
+}
+
+.admin-header h1,
+.form-page-header h1,
+.page-card-header h1 {
+    font-size: 30px !important;
+    margin-bottom: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Remove subtitle text below heading */
+.admin-header p,
+.form-page-header p,
+.page-card-header p,
+.admin-subtitle {
+    display: none !important;
+}
+
+/* Keep button same and aligned */
+.admin-header .btn,
+.admin-header .btn-small,
+.form-page-header .btn,
+.form-page-header .btn-small,
+.page-card-header .btn,
+.page-card-header .btn-small {
+    margin-left: auto;
+}
+
+/* Mobile compact header */
+@media (max-width: 768px) {
+    .admin-header,
+    .form-page-header,
+    .page-card-header {
+        padding: 18px 20px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .admin-header h1,
+    .form-page-header h1,
+    .page-card-header h1 {
+        font-size: 24px !important;
+    }
+}
