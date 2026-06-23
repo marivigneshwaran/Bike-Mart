@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import UserSerializer
+from django.db.models import Q
 
 from django.db.models import Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
@@ -417,8 +418,27 @@ def shop_settings_update(request):
 
 @login_required
 def bike_list(request):
-    bikes = Bike.objects.all().order_by('-created_at')
-    return render(request, 'panel/bike_list.html', {'bikes': bikes})
+    bikes = Bike.objects.select_related('vendor').all().order_by('-id')
+
+    search = request.GET.get('search')
+    status = request.GET.get('status')
+
+    if search:
+        bikes = bikes.filter(
+            Q(bike_name__icontains=search) |
+            Q(brand__icontains=search) |
+            Q(registration_number__icontains=search) |
+            Q(vendor__name__icontains=search)
+        )
+
+    if status:
+        bikes = bikes.filter(status=status)
+
+    return render(request, 'panel/bike_list.html', {
+        'bikes': bikes,
+        'search': search,
+        'status': status,
+    })
 
 
 @login_required
@@ -506,8 +526,22 @@ def bike_delete(request, bike_id):
 
 @login_required
 def customer_list(request):
-    customers = Customer.objects.all().order_by('-created_at')
-    return render(request, 'panel/customer_list.html', {'customers': customers})
+    customers = Customer.objects.all().order_by('-id')
+
+    search = request.GET.get('search')
+
+    if search:
+        customers = customers.filter(
+            Q(name__icontains=search) |
+            Q(phone__icontains=search) |
+            Q(email__icontains=search) |
+            Q(address__icontains=search)
+        )
+
+    return render(request, 'panel/customer_list.html', {
+        'customers': customers,
+        'search': search,
+    })
 
 
 @login_required
@@ -553,8 +587,23 @@ def customer_delete(request, customer_id):
 
 @login_required
 def vendor_list(request):
-    vendors = Vendor.objects.all().order_by('name')
-    return render(request, 'panel/vendor_list.html', {'vendors': vendors})
+    vendors = Vendor.objects.all().order_by('-id')
+
+    search = request.GET.get('search')
+
+    if search:
+        vendors = vendors.filter(
+            Q(name__icontains=search) |
+            Q(phone__icontains=search) |
+            Q(email__icontains=search) |
+            Q(address__icontains=search) |
+            Q(id_proof__icontains=search)
+        )
+
+    return render(request, 'panel/vendor_list.html', {
+        'vendors': vendors,
+        'search': search,
+    })
 
 
 @login_required
@@ -600,8 +649,27 @@ def vendor_delete(request, vendor_id):
 
 @login_required
 def employee_list(request):
-    employees = Employee.objects.all().order_by('-created_at')
-    return render(request, 'panel/employee_list.html', {'employees': employees})
+    employees = Employee.objects.all().order_by('-id')
+
+    search = request.GET.get('search')
+    status = request.GET.get('status')
+
+    if search:
+        employees = employees.filter(
+            Q(name__icontains=search) |
+            Q(phone__icontains=search) |
+            Q(email__icontains=search) |
+            Q(designation__icontains=search)
+        )
+
+    if status:
+        employees = employees.filter(status=status)
+
+    return render(request, 'panel/employee_list.html', {
+        'employees': employees,
+        'search': search,
+        'status': status,
+    })
 
 
 @login_required
@@ -647,8 +715,37 @@ def employee_delete(request, employee_id):
 
 @login_required
 def bill_payment_list(request):
-    bills = BillPayment.objects.select_related('customer', 'bike').order_by('-created_at')
-    return render(request, 'panel/bill_payment_list.html', {'bills': bills})
+    bills = BillPayment.objects.select_related('customer', 'bike').all().order_by('-id')
+
+    search = request.GET.get('search')
+    status = request.GET.get('status')
+    payment_type = request.GET.get('payment_type')
+
+    if search:
+        bills = bills.filter(
+            Q(bill_no__icontains=search) |
+            Q(customer__name__icontains=search) |
+            Q(customer__phone__icontains=search) |
+            Q(bike__bike_name__icontains=search) |
+            Q(bike__registration_number__icontains=search)
+        )
+
+    if payment_type:
+        bills = bills.filter(payment_type=payment_type)
+
+    if status == 'finance':
+        bills = bills.filter(settlement_type='finance')
+    elif status == 'partial':
+        bills = bills.filter(settlement_type='full', payable_amount__gt=0)
+    elif status == 'full':
+        bills = bills.filter(settlement_type='full', payable_amount=0)
+
+    return render(request, 'panel/bill_payment_list.html', {
+        'bills': bills,
+        'search': search,
+        'status': status,
+        'payment_type': payment_type,
+    })
 
 
 @login_required
@@ -825,10 +922,33 @@ def audit_log_list(request):
         messages.error(request, 'You do not have permission to view audit logs.')
         return redirect('admin_dashboard')
 
-    logs = AuditLog.objects.select_related('user').all()[:300]
+    logs = AuditLog.objects.select_related('user').all().order_by('-created_at')
+
+    search = request.GET.get('search')
+    action = request.GET.get('action')
+    model_name = request.GET.get('model_name')
+
+    if search:
+        logs = logs.filter(
+            Q(user__username__icontains=search) |
+            Q(model_name__icontains=search) |
+            Q(object_repr__icontains=search) |
+            Q(ip_address__icontains=search)
+        )
+
+    if action:
+        logs = logs.filter(action=action)
+
+    if model_name:
+        logs = logs.filter(model_name=model_name)
+
+    logs = logs[:300]
 
     return render(request, 'panel/audit_log_list.html', {
-        'logs': logs
+        'logs': logs,
+        'search': search,
+        'action': action,
+        'model_name': model_name,
     })
 
 class CurrentUserAPIView(APIView):

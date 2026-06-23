@@ -24,6 +24,12 @@
             <a href="{% url 'vendor_create' %}" class="btn-small">Add Vendor</a>
         </div>
 
+        <form method="GET" class="table-filter-form">
+            <input type="text" name="search" placeholder="Search vendor, phone, email, id proof" value="{{ search|default:'' }}">
+            <button type="submit" class="btn-small">Filter</button>
+            <a href="{% url 'vendor_list' %}" class="btn-light">Reset</a>
+        </form>
+
         <div class="table-card">
             <table>
                 <tr>

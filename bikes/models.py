@@ -315,6 +315,8 @@ class AuditLog(models.Model):
         ('create', 'Created'),
         ('update', 'Updated'),
         ('delete', 'Deleted'),
+        ('login', 'Login'),
+        ('logout', 'Logout'),
     )
 
     user = models.ForeignKey(
@@ -327,6 +329,7 @@ class AuditLog(models.Model):
     model_name = models.CharField(max_length=100)
     object_id = models.CharField(max_length=100, blank=True, null=True)
     object_repr = models.CharField(max_length=255, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
     old_values = models.JSONField(blank=True, null=True)
     new_values = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
