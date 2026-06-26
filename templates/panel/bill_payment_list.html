@@ -10,13 +10,26 @@
             <div>
                 <h1>Bill Payments</h1>
                 <p class="admin-subtitle">Manage bike sales bills, finance and payment details.</p>
+
+                <div class="record-count-box">
+                    {% if filtered_count != total_count %}
+                        Showing <strong>{{ filtered_count }}</strong> of <strong>{{ total_count }}</strong> Records
+                    {% else %}
+                        Total Records: <strong>{{ total_count }}</strong>
+                    {% endif %}
+                </div>
             </div>
 
             <a href="{% url 'bill_payment_create' %}" class="btn-small">Add Bill Payment</a>
         </div>
 
         <form method="GET" class="table-filter-form">
-            <input type="text" name="search" placeholder="Search bill no, customer, bike, reg no" value="{{ search|default:'' }}">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search bill no, customer, bike, reg no"
+                value="{{ search|default:'' }}"
+            >
 
             <select name="status">
                 <option value="">All Status</option>
@@ -89,7 +102,13 @@
                         <div class="action-buttons">
                             <a href="{% url 'bill_payment_print' bill.id %}" target="_blank" class="print-btn">Print</a>
                             <a href="{% url 'bill_payment_update' bill.id %}" class="edit-btn">Edit</a>
-                            <a href="{% url 'bill_payment_delete' bill.id %}" class="delete-btn" onclick="return confirm('Delete this bill?')">Delete</a>
+                            <a
+                                href="{% url 'bill_payment_delete' bill.id %}"
+                                class="delete-btn"
+                                onclick="return confirm('Delete this bill?')"
+                            >
+                                Delete
+                            </a>
                         </div>
                     </td>
                 </tr>

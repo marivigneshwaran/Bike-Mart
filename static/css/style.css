@@ -3166,3 +3166,20 @@ table.data-table td {
     color: #ffffff;
     text-decoration: none;
 }
+.record-count-box {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 7px 12px;
+    background: #fff3e8;
+    color: #ff6b14;
+    border: 1px solid rgba(255, 107, 20, 0.25);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.record-count-box strong {
+    margin: 0 4px;
+    color: #111827;
+}

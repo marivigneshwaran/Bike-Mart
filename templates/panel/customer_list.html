@@ -11,13 +11,27 @@
             <div>
                 <h1>Customer Details</h1>
                 <p class="admin-subtitle">Manage customer enquiries and contact records.</p>
+
+                <div class="record-count-box">
+                    {% if filtered_count != total_count %}
+                        Showing <strong>{{ filtered_count }}</strong> of <strong>{{ total_count }}</strong> Records
+                    {% else %}
+                        Total Records: <strong>{{ total_count }}</strong>
+                    {% endif %}
+                </div>
             </div>
 
             <a href="{% url 'customer_create' %}" class="btn">Add Customer</a>
         </div>
 
         <form method="GET" class="table-filter-form">
-            <input type="text" name="search" placeholder="Search name, phone, email, address" value="{{ search|default:'' }}">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search name, phone, email, address"
+                value="{{ search|default:'' }}"
+            >
+
             <button type="submit" class="btn-small">Filter</button>
             <a href="{% url 'customer_list' %}" class="btn-light">Reset</a>
         </form>
@@ -31,8 +45,7 @@
                         <th>Phone</th>
                         <th>Email</th>
                         <th>Address</th>
-                        <th>ID Proof No</th>
-                        <th>ID Proof File</th>
+                        <th>ID Proof Files</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -63,20 +76,13 @@
                             </td>
 
                             <td>
-                                {% if customer.id_proof_no %}
-                                    {{ customer.id_proof_no }}
-                                {% elif customer.id_proof_number %}
-                                    {{ customer.id_proof_number }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                {% if customer.id_proof_file %}
-                                    <a href="{{ customer.id_proof_file.url }}" target="_blank">View</a>
-                                {% elif customer.id_proof %}
-                                    <a href="{{ customer.id_proof.url }}" target="_blank">View</a>
+                                {% if customer.id_proof_files.all %}
+                                    {% for proof in customer.id_proof_files.all %}
+                                        <a href="{{ proof.file.url }}" target="_blank">
+                                            View {{ forloop.counter }}
+                                        </a>
+                                        {% if not forloop.last %} | {% endif %}
+                                    {% endfor %}
                                 {% else %}
                                     -
                                 {% endif %}
@@ -85,13 +91,19 @@
                             <td>
                                 <div class="action-buttons">
                                     <a href="{% url 'customer_update' customer.id %}" class="edit-btn">Edit</a>
-                                    <a href="{% url 'customer_delete' customer.id %}" class="delete-btn">Delete</a>
+                                    <a
+                                        href="{% url 'customer_delete' customer.id %}"
+                                        class="delete-btn"
+                                        onclick="return confirm('Delete this customer?')"
+                                    >
+                                        Delete
+                                    </a>
                                 </div>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="8" class="empty-row">No customers found.</td>
+                            <td colspan="7" class="empty-row">No customers found.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
