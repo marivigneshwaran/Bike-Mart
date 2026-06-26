@@ -1535,12 +1535,12 @@ th {
 
 .available-pill {
     background: var(--green-bg);
-    color: var(--green-text);
+    color: #ffffff;
 }
 
 .sold-pill {
     background: var(--red-bg);
-    color: var(--red-text);
+    color: #000000;
 }
 
 .finance-pill {
@@ -3017,7 +3017,7 @@ header {
 .dashboard-content select,
 .main-content input,
 .main-content select {
-    height: 40px;
+    height: 44px;
     font-size: 14px;
     border-radius: 10px;
 }

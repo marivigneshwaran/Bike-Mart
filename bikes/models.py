@@ -9,13 +9,24 @@ class Vendor(models.Model):
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    id_proof = models.CharField(max_length=100, blank=True, null=True)
-    id_proof_file = models.FileField(upload_to='vendor_id_proofs/', blank=True, null=True)
     photo = models.ImageField(upload_to='vendor_photos/', blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+
+class VendorIdProofFile(models.Model):
+    vendor = models.ForeignKey(
+        Vendor,
+        on_delete=models.CASCADE,
+        related_name='id_proof_files'
+    )
+    file = models.FileField(upload_to='vendor_id_proofs/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.vendor.name} ID Proof"
 
 
 class Bike(models.Model):
@@ -73,6 +84,7 @@ class Bike(models.Model):
     def __str__(self):
         return f"{self.bike_name} - {self.registration_number}"
 
+
 class BikeImage(models.Model):
     bike = models.ForeignKey(
         Bike,
@@ -88,7 +100,12 @@ class BikeImage(models.Model):
 
 
 class Customer(models.Model):
-    bike = models.ForeignKey(Bike, on_delete=models.SET_NULL, null=True, blank=True)
+    bike = models.ForeignKey(
+        Bike,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     name = models.CharField(max_length=150)
     phone = models.CharField(max_length=20)
@@ -96,7 +113,6 @@ class Customer(models.Model):
     address = models.TextField(blank=True, null=True)
 
     photo = models.ImageField(upload_to='customer_photos/', blank=True, null=True)
-    id_proof_file = models.FileField(upload_to='customer_id_proofs/', blank=True, null=True)
 
     interested_bike = models.CharField(max_length=150, blank=True, null=True)
     purchased = models.BooleanField(default=False)
@@ -106,6 +122,19 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CustomerIdProofFile(models.Model):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name='id_proof_files'
+    )
+    file = models.FileField(upload_to='customer_id_proofs/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.customer.name} ID Proof"
 
 
 class Employee(models.Model):
@@ -122,19 +151,40 @@ class Employee(models.Model):
     address = models.TextField(blank=True, null=True)
 
     designation = models.CharField(max_length=100, blank=True, null=True)
-    salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
     joining_date = models.DateField(blank=True, null=True)
 
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
-    id_proof_file = models.FileField(upload_to='employee_id_proofs/', blank=True, null=True)
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
     notes = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+
+class EmployeeIdProofFile(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='id_proof_files'
+    )
+    file = models.FileField(upload_to='employee_id_proofs/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.employee.name} ID Proof"
 
 
 class BillPayment(models.Model):
@@ -171,7 +221,11 @@ class BillPayment(models.Model):
         help_text="Balance amount after paid amount"
     )
 
-    settlement_type = models.CharField(max_length=20, choices=SETTLEMENT_CHOICES, default='full')
+    settlement_type = models.CharField(
+        max_length=20,
+        choices=SETTLEMENT_CHOICES,
+        default='full'
+    )
 
     finance_company_name = models.CharField(max_length=150, blank=True, null=True)
     finance_down_payment = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -182,7 +236,11 @@ class BillPayment(models.Model):
     total_amount_include_interest = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     monthly_emi = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
-    payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='cash')
+    payment_type = models.CharField(
+        max_length=20,
+        choices=PAYMENT_TYPE_CHOICES,
+        default='cash'
+    )
     upi_id = models.CharField(max_length=100, blank=True, null=True)
 
     remarks = models.TextField(blank=True, null=True)
@@ -241,8 +299,6 @@ class BillPayment(models.Model):
         if self.final_price is None:
             self.final_price = zero
 
-        # advance_amount is used as Paid Amount.
-        # payable_amount is used as Balance Amount.
         self.payable_amount = self.final_price - self.advance_amount
 
         if self.payable_amount < zero:
@@ -257,8 +313,12 @@ class BillPayment(models.Model):
             if self.finance_amount < zero:
                 self.finance_amount = zero
 
-            self.finance_interest_amount = self.finance_amount * interest_percentage / Decimal('100')
-            self.total_amount_include_interest = self.finance_amount + self.finance_interest_amount
+            self.finance_interest_amount = (
+                self.finance_amount * interest_percentage / Decimal('100')
+            )
+            self.total_amount_include_interest = (
+                self.finance_amount + self.finance_interest_amount
+            )
 
             if self.finance_months and self.finance_months > 0:
                 self.monthly_emi = self.total_amount_include_interest / self.finance_months

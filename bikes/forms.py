@@ -14,6 +14,30 @@ from .models import (
 )
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "widget",
+            MultipleFileInput(attrs={"multiple": True})
+        )
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+
+        if isinstance(data, (list, tuple)):
+            return [single_file_clean(file, initial) for file in data]
+
+        if data:
+            return [single_file_clean(data, initial)]
+
+        return []
+
+
 class BikeForm(forms.ModelForm):
     class Meta:
         model = Bike
@@ -26,6 +50,7 @@ class BikeForm(forms.ModelForm):
         if self.user and not self.user.is_superuser:
             self.fields.pop('buying_price', None)
 
+
 class BikeImageForm(forms.ModelForm):
     class Meta:
         model = BikeImage
@@ -33,6 +58,8 @@ class BikeImageForm(forms.ModelForm):
 
 
 class CustomerForm(forms.ModelForm):
+    id_proof_files = MultipleFileField(required=False)
+
     class Meta:
         model = Customer
         fields = [
@@ -41,21 +68,47 @@ class CustomerForm(forms.ModelForm):
             'email',
             'address',
             'photo',
-            'id_proof_file',
+            'id_proof_files',
             'notes',
         ]
 
 
 class VendorForm(forms.ModelForm):
+    id_proof_files = MultipleFileField(required=False)
+
     class Meta:
         model = Vendor
-        fields = '__all__'
+        fields = [
+            'name',
+            'phone',
+            'email',
+            'address',
+            'photo',
+            'id_proof_files',
+            'notes',
+        ]
 
 
 class EmployeeForm(forms.ModelForm):
+    id_proof_files = MultipleFileField(required=False)
+
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = [
+            'name',
+            'age',
+            'phone',
+            'alternate_phone',
+            'email',
+            'address',
+            'designation',
+            'salary',
+            'joining_date',
+            'photo',
+            'id_proof_files',
+            'status',
+            'notes',
+        ]
 
         widgets = {
             'joining_date': forms.DateInput(attrs={'type': 'date'}),
@@ -175,6 +228,7 @@ class ShopSettingForm(forms.ModelForm):
             'short_description': forms.Textarea(attrs={'placeholder': 'Short shop description', 'rows': 4}),
         }
 
+
 class SignupForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
@@ -246,7 +300,6 @@ class SignupForm(forms.ModelForm):
 
         user.set_password(self.cleaned_data['password'])
 
-        # Signup users are staff users but inactive until admin approval
         user.is_staff = True
         user.is_superuser = False
         user.is_active = False
@@ -297,30 +350,20 @@ class AdminUserForm(forms.ModelForm):
         else:
             self.fields['password'].required = True
 
-def save(self, commit=True):
-    user = super().save(commit=False)
+    def save(self, commit=True):
+        user = super().save(commit=False)
 
-    user.set_password(self.cleaned_data['password'])
+        password = self.cleaned_data.get('password')
+        role = self.cleaned_data.get('role')
 
-    username = self.cleaned_data.get('username')
+        if password:
+            user.set_password(password)
 
-    # Temporary bootstrap rule:
-    # If username is admin, make this account active superuser.
-    # After login succeeds, you can remove this special condition.
-    if username == 'admin':
         user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-    elif not User.objects.exists():
-        user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-    else:
-        user.is_staff = True
-        user.is_superuser = False
-        user.is_active = False
+        user.is_superuser = role == 'admin'
+        user.is_active = self.cleaned_data.get('is_active', False)
 
-    if commit:
-        user.save()
+        if commit:
+            user.save()
 
-    return user
+        return user
