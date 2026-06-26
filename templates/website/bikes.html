@@ -39,11 +39,23 @@
             </div>
 
             <div class="filter-field">
-                <label for="year">Year</label>
-                <select name="year" id="year">
-                    <option value="">All Years</option>
+                <label for="from_year">From Year</label>
+                <select name="from_year" id="from_year">
+                    <option value="">From Year</option>
                     {% for year in years %}
-                        <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ year }}" {% if selected_from_year == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="to_year">To Year</label>
+                <select name="to_year" id="to_year">
+                    <option value="">To Year</option>
+                    {% for year in years %}
+                        <option value="{{ year }}" {% if selected_to_year == year|stringformat:"s" %}selected{% endif %}>
                             {{ year }}
                         </option>
                     {% endfor %}
@@ -138,9 +150,11 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("availableBikeFilterForm");
+
         const brandSelect = document.getElementById("brand");
         const categorySelect = document.getElementById("category");
-        const yearSelect = document.getElementById("year");
+        const fromYearSelect = document.getElementById("from_year");
+        const toYearSelect = document.getElementById("to_year");
         const minPriceInput = document.getElementById("min_price");
         const maxPriceInput = document.getElementById("max_price");
 
@@ -160,6 +174,7 @@
                     return item[1];
                 }
             }
+
             return value;
         }
 
@@ -207,7 +222,8 @@
         });
 
         categorySelect.addEventListener("change", submitFilter);
-        yearSelect.addEventListener("change", submitFilter);
+        fromYearSelect.addEventListener("change", submitFilter);
+        toYearSelect.addEventListener("change", submitFilter);
 
         minPriceInput.addEventListener("input", function () {
             clearTimeout(priceTimer);
