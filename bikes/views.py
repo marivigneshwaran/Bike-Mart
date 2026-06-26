@@ -113,8 +113,63 @@ def about(request):
 
 
 def available_bikes(request):
-    bikes = Bike.objects.filter(status='available').order_by('-created_at')
-    return render(request, 'website/bikes.html', {'bikes': bikes})
+    bikes = Bike.objects.filter(status='available')
+
+    brand = request.GET.get('brand')
+    category = request.GET.get('category')
+    year = request.GET.get('year')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if brand:
+        bikes = bikes.filter(brand__iexact=brand)
+
+    if category:
+        bikes = bikes.filter(category=category)
+
+    if year:
+        bikes = bikes.filter(model_year=year)
+
+    if min_price:
+        bikes = bikes.filter(selling_price__gte=min_price)
+
+    if max_price:
+        bikes = bikes.filter(selling_price__lte=max_price)
+
+    bikes = bikes.order_by('-created_at')
+
+    brands = (
+        Bike.objects
+        .filter(status='available')
+        .exclude(brand__isnull=True)
+        .exclude(brand__exact='')
+        .values_list('brand', flat=True)
+        .distinct()
+        .order_by('brand')
+    )
+
+    years = (
+        Bike.objects
+        .filter(status='available')
+        .values_list('model_year', flat=True)
+        .distinct()
+        .order_by('-model_year')
+    )
+
+    context = {
+        'bikes': bikes,
+        'brands': brands,
+        'years': years,
+        'category_choices': Bike.CATEGORY_CHOICES,
+
+        'selected_brand': brand,
+        'selected_category': category,
+        'selected_year': year,
+        'selected_min_price': min_price,
+        'selected_max_price': max_price,
+    }
+
+    return render(request, 'website/bikes.html', context)
 
 
 def sold_bikes(request):

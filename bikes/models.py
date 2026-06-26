@@ -24,30 +24,54 @@ class Bike(models.Model):
         ('sold', 'Sold'),
     ]
 
-    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, blank=True)
+    CATEGORY_CHOICES = [
+        ('bike', 'Bike'),
+        ('scooter', 'Scooter'),
+        ('ev', 'EV'),
+    ]
+
+    vendor = models.ForeignKey(
+        Vendor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     bike_name = models.CharField(max_length=150)
     brand = models.CharField(max_length=100)
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='bike'
+    )
     model_year = models.IntegerField()
     registration_number = models.CharField(max_length=50, unique=True)
     km_driven = models.PositiveIntegerField()
     fuel_type = models.CharField(max_length=50, default='Petrol')
     ownership = models.CharField(max_length=50, blank=True, null=True)
-
-    buying_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    buying_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
-
     description = models.TextField()
-    bike_photo = models.ImageField(upload_to='bike_photos/', blank=True, null=True)
-
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    bike_photo = models.ImageField(
+        upload_to='bike_photos/',
+        blank=True,
+        null=True
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='available'
+    )
     is_featured = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.bike_name} - {self.registration_number}"
-
 
 class BikeImage(models.Model):
     bike = models.ForeignKey(
