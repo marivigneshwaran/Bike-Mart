@@ -3,13 +3,16 @@
 {% block content %}
 
 <section class="admin-layout">
-    {% comment %} <aside class="sidebar">
+    {% comment %}
+    <aside class="sidebar">
         <h2>Admin Panel</h2>
         <a href="{% url 'admin_dashboard' %}">Dashboard</a>
         <a href="{% url 'bike_list' %}">Bike Details</a>
         <a href="{% url 'customer_list' %}">Customer Details</a>
         <a href="{% url 'vendor_list' %}">Vendor Details</a>
-    </aside> {% endcomment %}
+    </aside>
+    {% endcomment %}
+
     {% include 'panel/sidebar.html' %}
 
     <div class="admin-content">
@@ -17,18 +20,44 @@
             <div>
                 <h1>Bike Details</h1>
                 <p class="admin-subtitle">Manage available and sold bike records.</p>
+
+                <div class="record-count-box">
+                    {% if filtered_count != total_count %}
+                        Showing <strong>{{ filtered_count }}</strong> of <strong>{{ total_count }}</strong> Records
+                    {% else %}
+                        Total Records: <strong>{{ total_count }}</strong>
+                    {% endif %}
+                </div>
             </div>
 
             <a href="{% url 'bike_create' %}" class="btn-small">Add Bike</a>
         </div>
 
         <form method="GET" class="table-filter-form">
-            <input type="text" name="search" placeholder="Search bike, brand, reg no, vendor" value="{{ search|default:'' }}">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search bike, brand, reg no, vendor"
+                value="{{ search|default:'' }}"
+            >
 
             <select name="status">
                 <option value="">All Status</option>
-                <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
-                <option value="sold" {% if status == 'sold' %}selected{% endif %}>Sold</option>
+                <option value="available" {% if status == 'available' %}selected{% endif %}>
+                    Available
+                </option>
+                <option value="sold" {% if status == 'sold' %}selected{% endif %}>
+                    Sold
+                </option>
+            </select>
+
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for value, label in category_choices %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
             </select>
 
             <button type="submit" class="btn-small">Filter</button>
@@ -41,60 +70,83 @@
                     <th>Photo</th>
                     <th>Bike</th>
                     <th>Brand</th>
+                    <th>Category</th>
                     <th>Year</th>
                     <th>KM</th>
+
                     {% if request.user.is_superuser %}
                         <th>Buying Price</th>
                     {% endif %}
+
                     <th>Price</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
 
                 {% for bike in bikes %}
-                <tr>
-                    <td>
-                        {% if bike.bike_photo %}
-                            <img src="{{ bike.bike_photo.url }}" class="table-img">
-                        {% else %}
-                            <span>-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <strong>{{ bike.bike_name }}</strong><br>
-                        <small>{{ bike.registration_number }}</small>
-                    </td>
-                    <td>{{ bike.brand }}</td>
-                    <td>{{ bike.model_year }}</td>
-                    <td>{{ bike.km_driven }}</td>
-                    {% if request.user.is_superuser %}
+                    <tr>
                         <td>
-                            {% if bike.buying_price %}
-                                ₹ {{ bike.buying_price }}
+                            {% if bike.bike_photo %}
+                                <img src="{{ bike.bike_photo.url }}" class="table-img">
                             {% else %}
-                                -
+                                <span>-</span>
                             {% endif %}
                         </td>
-                    {% endif %}
-                    <td>₹ {{ bike.selling_price }}</td>
-                    <td>
-                        {% if bike.status == 'sold' %}
-                            <span class="status-pill sold-pill">Sold</span>
-                        {% else %}
-                            <span class="status-pill available-pill">Available</span>
+
+                        <td>
+                            <strong>{{ bike.bike_name }}</strong><br>
+                            <small>{{ bike.registration_number }}</small>
+                        </td>
+
+                        <td>{{ bike.brand }}</td>
+
+                        <td>{{ bike.get_category_display }}</td>
+
+                        <td>{{ bike.model_year }}</td>
+
+                        <td>{{ bike.km_driven }}</td>
+
+                        {% if request.user.is_superuser %}
+                            <td>
+                                {% if bike.buying_price %}
+                                    ₹ {{ bike.buying_price }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
                         {% endif %}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="{% url 'bike_update' bike.id %}" class="edit-btn">Edit</a>
-                            <a href="{% url 'bike_delete' bike.id %}" class="delete-btn" onclick="return confirm('Delete this bike?')">Delete</a>
-                        </div>
-                    </td>
-                </tr>
+
+                        <td>₹ {{ bike.selling_price }}</td>
+
+                        <td>
+                            {% if bike.status == 'sold' %}
+                                <span class="status-pill sold-pill">Sold</span>
+                            {% else %}
+                                <span class="status-pill available-pill">Available</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'bike_update' bike.id %}" class="edit-btn">Edit</a>
+                                <a
+                                    href="{% url 'bike_delete' bike.id %}"
+                                    class="delete-btn"
+                                    onclick="return confirm('Delete this bike?')"
+                                >
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="8">No bikes found.</td>
-                </tr>
+                    <tr>
+                        {% if request.user.is_superuser %}
+                            <td colspan="10">No bikes found.</td>
+                        {% else %}
+                            <td colspan="9">No bikes found.</td>
+                        {% endif %}
+                    </tr>
                 {% endfor %}
             </table>
         </div>

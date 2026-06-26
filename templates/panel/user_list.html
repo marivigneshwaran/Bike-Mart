@@ -10,6 +10,14 @@
             <div>
                 <h1>User Management</h1>
                 <p class="admin-subtitle">Create admin and staff login users.</p>
+
+                <div class="record-count-box">
+                    {% if filtered_count != total_count %}
+                        Showing <strong>{{ filtered_count }}</strong> of <strong>{{ total_count }}</strong> Records
+                    {% else %}
+                        Total Records: <strong>{{ total_count }}</strong>
+                    {% endif %}
+                </div>
             </div>
 
             <a href="{% url 'user_create' %}" class="btn-small">Add User</a>
@@ -28,39 +36,57 @@
                 </tr>
 
                 {% for user_obj in users %}
-                <tr>
-                    <td><strong>{{ user_obj.username }}</strong></td>
-                    <td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
-                    <td>{{ user_obj.email|default:"-" }}</td>
-                    <td>
-                        {% if user_obj.is_superuser %}
-                            <span class="status-pill finance-pill">Admin</span>
-                        {% else %}
-                            <span class="status-pill available-pill">Staff</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if user_obj.is_active %}
-                            <span class="status-pill available-pill">Active</span>
-                        {% else %}
-                            <span class="status-pill sold-pill">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ user_obj.date_joined|date:"d-m-Y" }}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="{% url 'user_update' user_obj.id %}" class="edit-btn">Edit</a>
+                    <tr>
+                        <td><strong>{{ user_obj.username }}</strong></td>
 
-                            {% if user_obj != request.user %}
-                                <a href="{% url 'user_delete' user_obj.id %}" class="delete-btn" onclick="return confirm('Delete this user?')">Delete</a>
+                        <td>
+                            {% if user_obj.first_name or user_obj.last_name %}
+                                {{ user_obj.first_name }} {{ user_obj.last_name }}
+                            {% else %}
+                                -
                             {% endif %}
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+
+                        <td>{{ user_obj.email|default:"-" }}</td>
+
+                        <td>
+                            {% if user_obj.is_superuser %}
+                                <span class="status-pill finance-pill">Admin</span>
+                            {% else %}
+                                <span class="status-pill available-pill">Staff</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if user_obj.is_active %}
+                                <span class="status-pill available-pill">Active</span>
+                            {% else %}
+                                <span class="status-pill sold-pill">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ user_obj.date_joined|date:"d-m-Y" }}</td>
+
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'user_update' user_obj.id %}" class="edit-btn">Edit</a>
+
+                                {% if user_obj != request.user %}
+                                    <a
+                                        href="{% url 'user_delete' user_obj.id %}"
+                                        class="delete-btn"
+                                        onclick="return confirm('Delete this user?')"
+                                    >
+                                        Delete
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="7">No users found.</td>
-                </tr>
+                    <tr>
+                        <td colspan="7">No users found.</td>
+                    </tr>
                 {% endfor %}
             </table>
         </div>

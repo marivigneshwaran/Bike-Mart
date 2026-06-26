@@ -544,8 +544,11 @@ def shop_settings_update(request):
 def bike_list(request):
     bikes = Bike.objects.select_related('vendor').all().order_by('-id')
 
+    total_count = bikes.count()
+
     search = request.GET.get('search')
     status_filter = request.GET.get('status')
+    category = request.GET.get('category')
 
     if search:
         bikes = bikes.filter(
@@ -558,10 +561,19 @@ def bike_list(request):
     if status_filter:
         bikes = bikes.filter(status=status_filter)
 
+    if category:
+        bikes = bikes.filter(category=category)
+
+    filtered_count = bikes.count()
+
     return render(request, 'panel/bike_list.html', {
         'bikes': bikes,
         'search': search,
         'status': status_filter,
+        'category': category,
+        'category_choices': Bike.CATEGORY_CHOICES,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
@@ -655,6 +667,8 @@ def bike_delete(request, bike_id):
 def customer_list(request):
     customers = Customer.objects.all().order_by('-id')
 
+    total_count = customers.count()
+
     search = request.GET.get('search')
 
     if search:
@@ -665,9 +679,13 @@ def customer_list(request):
             Q(address__icontains=search)
         )
 
+    filtered_count = customers.count()
+
     return render(request, 'panel/customer_list.html', {
         'customers': customers,
         'search': search,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
@@ -743,6 +761,8 @@ def customer_delete(request, customer_id):
 def vendor_list(request):
     vendors = Vendor.objects.all().order_by('-id')
 
+    total_count = vendors.count()
+
     search = request.GET.get('search')
 
     if search:
@@ -753,9 +773,13 @@ def vendor_list(request):
             Q(address__icontains=search)
         )
 
+    filtered_count = vendors.count()
+
     return render(request, 'panel/vendor_list.html', {
         'vendors': vendors,
         'search': search,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
@@ -834,6 +858,8 @@ def employee_list(request):
 
     employees = Employee.objects.all().order_by('-id')
 
+    total_count = employees.count()
+
     search = request.GET.get('search')
     status_filter = request.GET.get('status')
 
@@ -848,10 +874,14 @@ def employee_list(request):
     if status_filter:
         employees = employees.filter(status=status_filter)
 
+    filtered_count = employees.count()
+
     return render(request, 'panel/employee_list.html', {
         'employees': employees,
         'search': search,
         'status': status_filter,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
@@ -938,6 +968,8 @@ def bill_payment_list(request):
         'bike'
     ).all().order_by('-id')
 
+    total_count = bills.count()
+
     search = request.GET.get('search')
     status_filter = request.GET.get('status')
     payment_type = request.GET.get('payment_type')
@@ -961,11 +993,15 @@ def bill_payment_list(request):
     elif status_filter == 'full':
         bills = bills.filter(settlement_type='full', payable_amount=0)
 
+    filtered_count = bills.count()
+
     return render(request, 'panel/bill_payment_list.html', {
         'bills': bills,
         'search': search,
         'status': status_filter,
         'payment_type': payment_type,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
@@ -1080,8 +1116,13 @@ def user_list(request):
 
     users = User.objects.all().order_by('-date_joined')
 
+    total_count = users.count()
+    filtered_count = users.count()
+
     return render(request, 'panel/user_list.html', {
         'users': users,
+        'total_count': total_count,
+        'filtered_count': filtered_count,
     })
 
 
