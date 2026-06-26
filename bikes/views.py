@@ -148,7 +148,8 @@ def available_bikes(request):
 
     brand = request.GET.get('brand')
     category = request.GET.get('category')
-    year = request.GET.get('year')
+    from_year = request.GET.get('from_year')
+    to_year = request.GET.get('to_year')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
@@ -158,8 +159,11 @@ def available_bikes(request):
     if category:
         bikes = bikes.filter(category=category)
 
-    if year:
-        bikes = bikes.filter(model_year=year)
+    if from_year:
+        bikes = bikes.filter(model_year__gte=from_year)
+
+    if to_year:
+        bikes = bikes.filter(model_year__lte=to_year)
 
     if min_price:
         bikes = bikes.filter(selling_price__gte=min_price)
@@ -211,7 +215,8 @@ def available_bikes(request):
     has_filters = any([
         brand,
         category,
-        year,
+        from_year,
+        to_year,
         min_price,
         max_price,
     ])
@@ -225,7 +230,8 @@ def available_bikes(request):
 
         'selected_brand': brand,
         'selected_category': category,
-        'selected_year': year,
+        'selected_from_year': from_year,
+        'selected_to_year': to_year,
         'selected_min_price': min_price,
         'selected_max_price': max_price,
         'has_filters': has_filters,
