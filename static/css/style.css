@@ -3043,7 +3043,7 @@ table.data-table {
 table.admin-table th,
 table.panel-table th,
 table.data-table th {
-    padding: 13px 14px;
+    padding: 13px 10px;
     font-size: 14px;
     font-weight: 800;
     white-space: nowrap;
