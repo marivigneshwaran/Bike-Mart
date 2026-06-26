@@ -2,306 +2,138 @@
 
 {% block content %}
 
-<section class="page-hero">
-    <h1>Available Bikes</h1>
-    <p>Choose from our latest second-hand bikes.</p>
-</section>
-
-<section class="bike-filter-section">
-    <form method="get" class="bike-filter-form">
-
-        <div class="filter-group">
-            <label for="brand">Brand</label>
-            <select name="brand" id="brand">
-                <option value="">All Brands</option>
-                {% for brand in brands %}
-                    <option value="{{ brand }}"
-                        {% if selected_brand == brand %}selected{% endif %}>
-                        {{ brand }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="filter-group">
-            <label for="category">Category</label>
-            <select name="category" id="category">
-                <option value="">All Categories</option>
-                {% for value, label in category_choices %}
-                    <option value="{{ value }}"
-                        {% if selected_category == value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="filter-group">
-            <label for="year">Year</label>
-            <select name="year" id="year">
-                <option value="">All Years</option>
-                {% for year in years %}
-                    <option value="{{ year }}"
-                        {% if selected_year == year|stringformat:"s" %}selected{% endif %}>
-                        {{ year }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="filter-group">
-            <label for="min_price">Min Price</label>
-            <input
-                type="number"
-                name="min_price"
-                id="min_price"
-                placeholder="Min Price"
-                value="{{ selected_min_price|default:'' }}"
-            >
-        </div>
-
-        <div class="filter-group">
-            <label for="max_price">Max Price</label>
-            <input
-                type="number"
-                name="max_price"
-                id="max_price"
-                placeholder="Max Price"
-                value="{{ selected_max_price|default:'' }}"
-            >
-        </div>
-
-        <div class="filter-actions">
-            <button type="submit" class="btn-primary">Filter</button>
-            <a href="{% url 'available_bikes' %}" class="btn-reset">Reset</a>
-        </div>
-
-    </form>
-</section>
-
-<section class="bike-list-section">
-    <div class="bike-grid">
-
-        {% for bike in bikes %}
-            <div class="bike-card">
-
-                <div class="bike-img-box">
-                    {% if bike.bike_photo %}
-                        <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
-                    {% else %}
-                        <div class="no-image">No Image</div>
-                    {% endif %}
-                </div>
-
-                <div class="bike-card-body">
-                    <h3>{{ bike.bike_name }}</h3>
-
-                    <p>{{ bike.brand }} | {{ bike.model_year }}</p>
-
-                    <p>
-                        Category:
-                        {% if bike.category == 'bike' %}
-                            Bike
-                        {% elif bike.category == 'scooter' %}
-                            Scooter
-                        {% elif bike.category == 'ev' %}
-                            EV
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
-
-                    <p>{{ bike.km_driven }} KM Driven</p>
-
-                    <h4>₹ {{ bike.selling_price }}</h4>
-
-                    <a href="{% url 'bike_detail' bike.id %}" class="btn-view">
-                        View Details
-                    </a>
-                </div>
-
-            </div>
-        {% empty %}
-            <div class="empty-message">
-                <p>No bikes available for the selected filters.</p>
-            </div>
-        {% endfor %}
-
+<section class="page-hero compact-hero">
+    <div class="container">
+        <h1>Available Bikes</h1>
+        <p>Choose from our latest second-hand bikes.</p>
     </div>
 </section>
 
-<style>
-    .bike-filter-section {
-        padding: 30px 60px;
-        background: #f5f7fb;
-    }
+<section class="bike-page-section">
+    <div class="container">
 
-    .bike-filter-form {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 16px;
-        align-items: end;
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    }
+        <form method="get" class="bike-filter-card animate-up">
 
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
+            <div class="filter-field">
+                <label for="brand">Brand</label>
+                <select name="brand" id="brand">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>
+                            {{ brand }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    .filter-group label {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1f2937;
-    }
+            <div class="filter-field">
+                <label for="category">Category</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    {% for value, label in category_choices %}
+                        <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    .filter-group select,
-    .filter-group input {
-        height: 42px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        padding: 0 12px;
-        font-size: 14px;
-        outline: none;
-    }
+            <div class="filter-field">
+                <label for="year">Year</label>
+                <select name="year" id="year">
+                    <option value="">All Years</option>
+                    {% for year in years %}
+                        <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    .filter-group select:focus,
-    .filter-group input:focus {
-        border-color: #111827;
-    }
+            <div class="filter-field">
+                <label for="min_price">Min Price</label>
+                <input
+                    type="number"
+                    name="min_price"
+                    id="min_price"
+                    placeholder="Min Price"
+                    value="{{ selected_min_price|default:'' }}"
+                >
+            </div>
 
-    .filter-actions {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
+            <div class="filter-field">
+                <label for="max_price">Max Price</label>
+                <input
+                    type="number"
+                    name="max_price"
+                    id="max_price"
+                    placeholder="Max Price"
+                    value="{{ selected_max_price|default:'' }}"
+                >
+            </div>
 
-    .btn-primary,
-    .btn-reset,
-    .btn-view {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 42px;
-        padding: 0 18px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-    }
+            <div class="filter-buttons">
+                <button type="submit" class="btn-dark">Filter</button>
+                <a href="{% url 'available_bikes' %}" class="btn-light">Reset</a>
+            </div>
 
-    .btn-primary {
-        background: #111827;
-        color: #ffffff;
-    }
+        </form>
 
-    .btn-reset {
-        background: #e5e7eb;
-        color: #111827;
-    }
+        <div class="bike-grid modern-bike-grid">
+            {% for bike in bikes %}
+                <article class="modern-bike-card animate-up">
 
-    .btn-view {
-        background: #111827;
-        color: #ffffff;
-        margin-top: 12px;
-    }
+                    <div class="bike-image-wrap">
+                        {% if bike.bike_photo %}
+                            <img src="{{ bike.bike_photo.url }}" alt="{{ bike.bike_name }}">
+                        {% else %}
+                            <div class="no-image-box">No Image</div>
+                        {% endif %}
 
-    .bike-list-section {
-        padding: 50px 60px;
-        background: #f5f7fb;
-    }
+                        <span class="bike-status-pill available-pill">Available</span>
+                    </div>
 
-    .bike-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 28px;
-    }
+                    <div class="bike-card-content">
+                        <h3>{{ bike.bike_name }}</h3>
 
-    .bike-card {
-        background: #ffffff;
-        border-radius: 18px;
-        padding: 22px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    }
+                        <p class="bike-meta">
+                            {{ bike.brand }} | {{ bike.model_year }}
+                        </p>
 
-    .bike-img-box {
-        height: 260px;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        background: #ffffff;
-    }
+                        <p class="bike-info">
+                            Category:
+                            {% if bike.category == 'bike' %}
+                                Bike
+                            {% elif bike.category == 'scooter' %}
+                                Scooter
+                            {% elif bike.category == 'ev' %}
+                                EV
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
 
-    .bike-img-box img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
+                        <p class="bike-info">{{ bike.km_driven }} KM Driven</p>
 
-    .no-image {
-        color: #6b7280;
-        font-size: 14px;
-    }
+                        <div class="bike-card-footer">
+                            <h4>₹ {{ bike.selling_price }}</h4>
+                            <a href="{% url 'bike_detail' bike.id %}" class="btn-view-details">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
 
-    .bike-card-body h3 {
-        margin-top: 20px;
-        margin-bottom: 8px;
-        font-size: 22px;
-        color: #111827;
-    }
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <h3>No bikes available</h3>
+                    <p>No bikes found for the selected filters.</p>
+                    <a href="{% url 'available_bikes' %}" class="btn-dark">Clear Filters</a>
+                </div>
+            {% endfor %}
+        </div>
 
-    .bike-card-body p {
-        margin: 6px 0;
-        color: #4b5563;
-    }
-
-    .bike-card-body h4 {
-        margin: 12px 0;
-        font-size: 20px;
-        color: #111827;
-    }
-
-    .empty-message {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 40px;
-        background: #ffffff;
-        border-radius: 16px;
-        color: #6b7280;
-    }
-
-    @media (max-width: 1200px) {
-        .bike-filter-form {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .bike-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .bike-filter-section,
-        .bike-list-section {
-            padding: 25px 20px;
-        }
-
-        .bike-filter-form {
-            grid-template-columns: 1fr;
-        }
-
-        .bike-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+    </div>
+</section>
 
 {% endblock %}

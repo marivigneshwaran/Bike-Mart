@@ -2643,3 +2643,517 @@ th {
         font-size: 24px !important;
     }
 }
+/* ======================================================
+   BikeMart UI Polish - Website + Admin Lists
+   Add this code at the bottom of static/css/style.css
+====================================================== */
+
+:root {
+    --bm-dark: #101827;
+    --bm-dark-soft: #172033;
+    --bm-orange: #ff6b14;
+    --bm-orange-dark: #e85d0e;
+    --bm-bg: #f4f6fb;
+    --bm-card: #ffffff;
+    --bm-border: #e5e9f2;
+    --bm-text: #0f172a;
+    --bm-muted: #64748b;
+    --bm-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    --bm-radius: 18px;
+}
+
+/* Global smooth feel */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--bm-bg);
+    color: var(--bm-text);
+}
+
+/* Better navbar spacing */
+.navbar,
+header {
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Reusable container */
+.container {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+}
+
+/* Page heading area */
+.page-hero,
+.compact-hero {
+    background: var(--bm-dark);
+    color: #ffffff;
+    padding: 42px 0 52px;
+    text-align: left;
+}
+
+.page-hero h1,
+.compact-hero h1 {
+    font-size: 38px;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.page-hero p,
+.compact-hero p {
+    margin: 0;
+    font-size: 16px;
+    color: #dbe4f0;
+}
+
+/* Available bikes page */
+.bike-page-section {
+    background: linear-gradient(180deg, #f7f9fd 0%, #eef2f8 100%);
+    padding: 34px 0 60px;
+    min-height: 70vh;
+}
+
+/* Filter card */
+.bike-filter-card {
+    background: var(--bm-card);
+    border: 1px solid var(--bm-border);
+    border-radius: var(--bm-radius);
+    box-shadow: var(--bm-shadow);
+    padding: 18px;
+    margin-bottom: 34px;
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 1fr 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.filter-field label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.filter-field select,
+.filter-field input {
+    height: 42px;
+    border: 1px solid #cfd6e3;
+    border-radius: 11px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: #111827;
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-field select:focus,
+.filter-field input:focus {
+    border-color: var(--bm-orange);
+    box-shadow: 0 0 0 4px rgba(255, 107, 20, 0.12);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-dark,
+.btn-light,
+.btn-view-details {
+    height: 42px;
+    padding: 0 17px;
+    border-radius: 11px;
+    border: 0;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.btn-dark {
+    background: var(--bm-dark);
+    color: #ffffff;
+}
+
+.btn-dark:hover {
+    background: var(--bm-orange);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 20, 0.22);
+}
+
+.btn-light {
+    background: #edf1f7;
+    color: #111827;
+}
+
+.btn-light:hover {
+    background: #dfe5ee;
+    transform: translateY(-2px);
+}
+
+/* Bike cards */
+.modern-bike-grid,
+.bike-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.modern-bike-card {
+    background: #ffffff;
+    border: 1px solid var(--bm-border);
+    border-radius: var(--bm-radius);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.modern-bike-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.13);
+    border-color: rgba(255, 107, 20, 0.35);
+}
+
+.bike-image-wrap {
+    position: relative;
+    height: 230px;
+    margin: 16px 16px 0;
+    border: 1px solid var(--bm-border);
+    border-radius: 15px;
+    background: #ffffff;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bike-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 14px;
+    transition: transform 0.25s ease;
+}
+
+.modern-bike-card:hover .bike-image-wrap img {
+    transform: scale(1.04);
+}
+
+.no-image-box {
+    color: var(--bm-muted);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.bike-status-pill {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.available-pill {
+    background: #16a34a;
+}
+
+.sold-pill {
+    background: var(--bm-orange);
+}
+
+.bike-card-content {
+    padding: 18px 18px 20px;
+}
+
+.bike-card-content h3 {
+    margin: 0 0 8px;
+    font-size: 19px;
+    line-height: 1.25;
+    color: #0f172a;
+}
+
+.bike-meta {
+    color: #475569;
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.bike-info {
+    color: #64748b;
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.bike-card-footer {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.bike-card-footer h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.btn-view-details {
+    background: var(--bm-dark);
+    color: #ffffff;
+    height: 38px;
+    padding: 0 13px;
+    font-size: 12px;
+}
+
+.btn-view-details:hover {
+    background: var(--bm-orange);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Empty state */
+.empty-state {
+    grid-column: 1 / -1;
+    background: #ffffff;
+    border: 1px solid var(--bm-border);
+    border-radius: var(--bm-radius);
+    box-shadow: var(--bm-shadow);
+    text-align: center;
+    padding: 42px 20px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px;
+    font-size: 22px;
+}
+
+.empty-state p {
+    color: var(--bm-muted);
+    margin-bottom: 18px;
+}
+
+/* Simple animation */
+.animate-up {
+    animation: bmFadeUp 0.45s ease both;
+}
+
+@keyframes bmFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ======================================================
+   Admin Panel Compact List / Report UI
+   This reduces the zoomed-in feel in all admin list pages.
+====================================================== */
+
+.admin-content,
+.panel-content,
+.dashboard-content,
+.main-content {
+    font-size: 14px;
+}
+
+/* Admin white heading/filter/table cards */
+.admin-content .card,
+.panel-content .card,
+.dashboard-content .card,
+.main-content .card,
+.panel-card,
+.admin-card {
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+/* Compact admin page titles */
+.admin-content h1,
+.panel-content h1,
+.dashboard-content h1,
+.main-content h1 {
+    font-size: 30px;
+    line-height: 1.2;
+    letter-spacing: -0.4px;
+}
+
+/* Compact filters */
+.admin-content form,
+.panel-content form,
+.dashboard-content form,
+.main-content form {
+    gap: 10px;
+}
+
+.admin-content input,
+.admin-content select,
+.panel-content input,
+.panel-content select,
+.dashboard-content input,
+.dashboard-content select,
+.main-content input,
+.main-content select {
+    height: 40px;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+/* Compact admin tables */
+.admin-content table,
+.panel-content table,
+.dashboard-content table,
+.main-content table,
+table.admin-table,
+table.panel-table,
+table.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+.admin-content table th,
+.panel-content table th,
+.dashboard-content table th,
+.main-content table th,
+table.admin-table th,
+table.panel-table th,
+table.data-table th {
+    padding: 13px 14px;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-content table td,
+.panel-content table td,
+.dashboard-content table td,
+.main-content table td,
+table.admin-table td,
+table.panel-table td,
+table.data-table td {
+    padding: 12px 14px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+/* Compact action buttons in admin lists */
+.admin-content table a,
+.panel-content table a,
+.dashboard-content table a,
+.main-content table a {
+    font-size: 13px;
+}
+
+.admin-content button,
+.admin-content .btn,
+.panel-content button,
+.panel-content .btn,
+.dashboard-content button,
+.dashboard-content .btn,
+.main-content button,
+.main-content .btn {
+    min-height: 38px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* Compact image thumbnails in admin tables */
+.admin-content table img,
+.panel-content table img,
+.dashboard-content table img,
+.main-content table img {
+    max-width: 58px;
+    max-height: 58px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Sidebar cleaner spacing */
+.sidebar,
+.admin-sidebar {
+    font-size: 15px;
+}
+
+.sidebar a,
+.admin-sidebar a {
+    transition: background 0.18s ease, color 0.18s ease, padding-left 0.18s ease;
+}
+
+.sidebar a:hover,
+.admin-sidebar a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    padding-left: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .modern-bike-grid,
+    .bike-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .bike-filter-card {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: min(100% - 28px, 1180px);
+    }
+
+    .page-hero,
+    .compact-hero {
+        padding: 32px 0 38px;
+    }
+
+    .page-hero h1,
+    .compact-hero h1 {
+        font-size: 30px;
+    }
+
+    .bike-filter-card {
+        grid-template-columns: 1fr;
+    }
+
+    .modern-bike-grid,
+    .bike-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bike-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .btn-view-details {
+        width: 100%;
+    }
+}
