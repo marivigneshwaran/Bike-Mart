@@ -1,24 +1,24 @@
 import json
 from decimal import Decimal
 from urllib.parse import quote_plus
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from .models import AuditLog
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
 
-from .serializers import UserSerializer
-from django.db.models import Q
-
-from django.db.models import Sum, Count
+from django.db.models import Q, Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+
+from .serializers import UserSerializer
+
 from .models import (
     Bike,
     BikeImage,
@@ -29,7 +29,12 @@ from .models import (
     ShopSetting,
     Employee,
     BillPayment,
+    AuditLog,
+    CustomerIdProofFile,
+    VendorIdProofFile,
+    EmployeeIdProofFile,
 )
+
 from .forms import (
     BikeForm,
     CustomerForm,
@@ -39,8 +44,8 @@ from .forms import (
     ShopSettingForm,
     EmployeeForm,
     BillPaymentForm,
-    AdminUserForm,
     SignupForm,
+    AdminUserForm,
 )
 
 
@@ -52,8 +57,10 @@ def get_shop_setting():
 
     return setting
 
+
 def admin_required(user):
     return user.is_authenticated and user.is_superuser
+
 
 def refresh_bike_status_after_bill_change(bike):
     if not bike:
@@ -78,17 +85,34 @@ def home(request):
 
     if request.method == 'POST' and request.POST.get('form_type') == 'testimonial_form':
         testimonial_form = TestimonialForm(request.POST)
+
         if testimonial_form.is_valid():
             testimonial = testimonial_form.save(commit=False)
             testimonial.is_active = True
             testimonial.save()
-            messages.success(request, 'Thank you! Your testimonial has been added successfully.')
+
+            messages.success(
+                request,
+                'Thank you! Your testimonial has been added successfully.'
+            )
             return redirect('home')
 
-    featured_bikes = Bike.objects.filter(status='available', is_featured=True).order_by('-created_at')[:6]
-    available_bikes_preview = Bike.objects.filter(status='available').order_by('-created_at')[:6]
-    sold_bikes_preview = Bike.objects.filter(status='sold').order_by('-created_at')[:6]
-    testimonials = Testimonial.objects.filter(is_active=True).order_by('-created_at')
+    featured_bikes = Bike.objects.filter(
+        status='available',
+        is_featured=True
+    ).order_by('-created_at')[:6]
+
+    available_bikes_preview = Bike.objects.filter(
+        status='available'
+    ).order_by('-created_at')[:6]
+
+    sold_bikes_preview = Bike.objects.filter(
+        status='sold'
+    ).order_by('-created_at')[:6]
+
+    testimonials = Testimonial.objects.filter(
+        is_active=True
+    ).order_by('-created_at')
 
     available_count = Bike.objects.filter(status='available').count()
     sold_count = Bike.objects.filter(status='sold').count()
@@ -161,7 +185,6 @@ def available_bikes(request):
         'brands': brands,
         'years': years,
         'category_choices': Bike.CATEGORY_CHOICES,
-
         'selected_brand': brand,
         'selected_category': category,
         'selected_year': year,
@@ -206,6 +229,7 @@ def contact(request):
 
     if request.method == 'POST':
         form = ContactInquiryForm(request.POST)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'Your inquiry has been submitted successfully.')
@@ -225,11 +249,6 @@ def contact(request):
 # -------------------------
 # Login / Logout
 # -------------------------
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib import messages
-
 
 def signup(request):
     if request.user.is_authenticated:
@@ -252,6 +271,7 @@ def signup(request):
         'form': form,
     })
 
+
 def admin_login(request):
     if request.user.is_authenticated:
         return redirect('admin_dashboard')
@@ -260,7 +280,10 @@ def admin_login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        inactive_user = User.objects.filter(username=username, is_active=False).first()
+        inactive_user = User.objects.filter(
+            username=username,
+            is_active=False
+        ).first()
 
         if inactive_user:
             messages.error(
@@ -274,17 +297,13 @@ def admin_login(request):
         if user is not None and user.is_staff:
             login(request, user)
             return redirect('admin_dashboard')
-        else:
-            messages.error(request, 'Invalid username or password.')
+
+        messages.error(request, 'Invalid username or password.')
 
     return render(request, 'panel/login.html')
 
-def create_emergency_admin(request):
-    """
-    Temporary emergency admin creation URL for Render deployment.
-    Remove this view and URL after login works.
-    """
 
+def create_emergency_admin(request):
     username = "admin"
     email = "marisankar78@gmail.com"
     password = "admin@12345"
@@ -334,7 +353,7 @@ def admin_dashboard(request):
 
     sold_bike_ids = BillPayment.objects.values_list('bike_id', flat=True)
     sold_bikes = Bike.objects.filter(id__in=sold_bike_ids)
-    available_bikes = Bike.objects.filter(status='available')
+    available_bikes_queryset = Bike.objects.filter(status='available')
 
     total_invested_amount = Bike.objects.aggregate(
         total=Sum('buying_price')
@@ -368,19 +387,24 @@ def admin_dashboard(request):
         total=Sum('total_amount_include_interest')
     )['total'] or Decimal('0.00')
 
-    available_stock_value = available_bikes.aggregate(
+    available_stock_value = available_bikes_queryset.aggregate(
         total=Sum('buying_price')
     )['total'] or Decimal('0.00')
 
-    available_expected_sales = available_bikes.aggregate(
+    available_expected_sales = available_bikes_queryset.aggregate(
         total=Sum('selling_price')
     )['total'] or Decimal('0.00')
 
     total_profit = total_sales_amount - sold_invested_amount
     potential_profit = available_expected_sales - available_stock_value
 
-    finance_sales_count = BillPayment.objects.filter(settlement_type='finance').count()
-    full_settlement_count = BillPayment.objects.filter(settlement_type='full').count()
+    finance_sales_count = BillPayment.objects.filter(
+        settlement_type='finance'
+    ).count()
+
+    full_settlement_count = BillPayment.objects.filter(
+        settlement_type='full'
+    ).count()
 
     brand_data = Bike.objects.values('brand').annotate(
         count=Count('id')
@@ -398,10 +422,8 @@ def admin_dashboard(request):
         'employees_count': employees_count,
         'inquiries_count': inquiries_count,
         'bill_count': bill_count,
-
         'recent_bikes': recent_bikes,
         'recent_bills': recent_bills,
-
         'total_invested_amount': total_invested_amount,
         'sold_invested_amount': sold_invested_amount,
         'total_sales_amount': total_sales_amount,
@@ -416,11 +438,12 @@ def admin_dashboard(request):
         'potential_profit': potential_profit,
         'finance_sales_count': finance_sales_count,
         'full_settlement_count': full_settlement_count,
-
         'status_chart_labels': json.dumps(['Available Bikes', 'Sold Bikes']),
-        'status_chart_data': json.dumps([available_bikes_count, sold_bikes_count]),
+        'status_chart_data': json.dumps([
+            available_bikes_count,
+            sold_bikes_count
+        ]),
         'can_view_finance': request.user.is_superuser,
-
         'finance_chart_labels': json.dumps([
             'Sales Amount',
             'Advance',
@@ -436,14 +459,14 @@ def admin_dashboard(request):
             float(total_finance_amount),
             float(total_interest_amount),
             float(total_profit),
-            
         ]),
-
         'brand_chart_labels': json.dumps(brand_labels),
         'brand_chart_data': json.dumps(brand_counts),
-
         'settlement_chart_labels': json.dumps(['Full Settlement', 'Finance']),
-        'settlement_chart_data': json.dumps([full_settlement_count, finance_sales_count]),
+        'settlement_chart_data': json.dumps([
+            full_settlement_count,
+            finance_sales_count
+        ]),
     }
 
     return render(request, 'panel/dashboard.html', context)
@@ -456,6 +479,7 @@ def shop_settings_update(request):
 
     if request.method == 'POST':
         form = ShopSettingForm(request.POST, instance=shop_setting)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'Shop contact details updated successfully.')
@@ -476,7 +500,7 @@ def bike_list(request):
     bikes = Bike.objects.select_related('vendor').all().order_by('-id')
 
     search = request.GET.get('search')
-    status = request.GET.get('status')
+    status_filter = request.GET.get('status')
 
     if search:
         bikes = bikes.filter(
@@ -486,13 +510,13 @@ def bike_list(request):
             Q(vendor__name__icontains=search)
         )
 
-    if status:
-        bikes = bikes.filter(status=status)
+    if status_filter:
+        bikes = bikes.filter(status=status_filter)
 
     return render(request, 'panel/bike_list.html', {
         'bikes': bikes,
         'search': search,
-        'status': status,
+        'status': status_filter,
     })
 
 
@@ -557,6 +581,7 @@ def bike_update(request, bike_id):
         'bike': bike,
     })
 
+
 @login_required
 def bike_image_delete(request, image_id):
     bike_image = get_object_or_404(BikeImage, id=image_id)
@@ -567,10 +592,12 @@ def bike_image_delete(request, image_id):
     messages.success(request, 'Bike image deleted successfully.')
     return redirect('bike_update', bike_id=bike_id)
 
+
 @login_required
 def bike_delete(request, bike_id):
     bike = get_object_or_404(Bike, id=bike_id)
     bike.delete()
+
     messages.success(request, 'Bike deleted successfully.')
     return redirect('bike_list')
 
@@ -605,12 +632,23 @@ def customer_create(request):
 
     if request.method == 'POST':
         form = CustomerForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
+            customer = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                CustomerIdProofFile.objects.create(
+                    customer=customer,
+                    file=file
+                )
+
             messages.success(request, 'Customer added successfully.')
             return redirect('customer_list')
 
-    return render(request, 'panel/customer_form.html', {'form': form, 'title': 'Add Customer'})
+    return render(request, 'panel/customer_form.html', {
+        'form': form,
+        'title': 'Add Customer',
+    })
 
 
 @login_required
@@ -619,19 +657,35 @@ def customer_update(request, customer_id):
     form = CustomerForm(instance=customer)
 
     if request.method == 'POST':
-        form = CustomerForm(request.POST, request.FILES, instance=customer)
+        form = CustomerForm(
+            request.POST,
+            request.FILES,
+            instance=customer
+        )
+
         if form.is_valid():
-            form.save()
+            customer = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                CustomerIdProofFile.objects.create(
+                    customer=customer,
+                    file=file
+                )
+
             messages.success(request, 'Customer updated successfully.')
             return redirect('customer_list')
 
-    return render(request, 'panel/customer_form.html', {'form': form, 'title': 'Edit Customer'})
+    return render(request, 'panel/customer_form.html', {
+        'form': form,
+        'title': 'Edit Customer',
+    })
 
 
 @login_required
 def customer_delete(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     customer.delete()
+
     messages.success(request, 'Customer deleted successfully.')
     return redirect('customer_list')
 
@@ -651,8 +705,7 @@ def vendor_list(request):
             Q(name__icontains=search) |
             Q(phone__icontains=search) |
             Q(email__icontains=search) |
-            Q(address__icontains=search) |
-            Q(id_proof__icontains=search)
+            Q(address__icontains=search)
         )
 
     return render(request, 'panel/vendor_list.html', {
@@ -667,12 +720,23 @@ def vendor_create(request):
 
     if request.method == 'POST':
         form = VendorForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
+            vendor = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                VendorIdProofFile.objects.create(
+                    vendor=vendor,
+                    file=file
+                )
+
             messages.success(request, 'Vendor added successfully.')
             return redirect('vendor_list')
 
-    return render(request, 'panel/vendor_form.html', {'form': form, 'title': 'Add Vendor'})
+    return render(request, 'panel/vendor_form.html', {
+        'form': form,
+        'title': 'Add Vendor',
+    })
 
 
 @login_required
@@ -681,19 +745,35 @@ def vendor_update(request, vendor_id):
     form = VendorForm(instance=vendor)
 
     if request.method == 'POST':
-        form = VendorForm(request.POST, request.FILES, instance=vendor)
+        form = VendorForm(
+            request.POST,
+            request.FILES,
+            instance=vendor
+        )
+
         if form.is_valid():
-            form.save()
+            vendor = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                VendorIdProofFile.objects.create(
+                    vendor=vendor,
+                    file=file
+                )
+
             messages.success(request, 'Vendor updated successfully.')
             return redirect('vendor_list')
 
-    return render(request, 'panel/vendor_form.html', {'form': form, 'title': 'Edit Vendor'})
+    return render(request, 'panel/vendor_form.html', {
+        'form': form,
+        'title': 'Edit Vendor',
+    })
 
 
 @login_required
 def vendor_delete(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
     vendor.delete()
+
     messages.success(request, 'Vendor deleted successfully.')
     return redirect('vendor_list')
 
@@ -707,7 +787,7 @@ def employee_list(request):
     employees = Employee.objects.all().order_by('-id')
 
     search = request.GET.get('search')
-    status = request.GET.get('status')
+    status_filter = request.GET.get('status')
 
     if search:
         employees = employees.filter(
@@ -717,13 +797,13 @@ def employee_list(request):
             Q(designation__icontains=search)
         )
 
-    if status:
-        employees = employees.filter(status=status)
+    if status_filter:
+        employees = employees.filter(status=status_filter)
 
     return render(request, 'panel/employee_list.html', {
         'employees': employees,
         'search': search,
-        'status': status,
+        'status': status_filter,
     })
 
 
@@ -733,12 +813,23 @@ def employee_create(request):
 
     if request.method == 'POST':
         form = EmployeeForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
+            employee = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                EmployeeIdProofFile.objects.create(
+                    employee=employee,
+                    file=file
+                )
+
             messages.success(request, 'Employee added successfully.')
             return redirect('employee_list')
 
-    return render(request, 'panel/employee_form.html', {'form': form, 'title': 'Add Employee'})
+    return render(request, 'panel/employee_form.html', {
+        'form': form,
+        'title': 'Add Employee',
+    })
 
 
 @login_required
@@ -747,19 +838,35 @@ def employee_update(request, employee_id):
     form = EmployeeForm(instance=employee)
 
     if request.method == 'POST':
-        form = EmployeeForm(request.POST, request.FILES, instance=employee)
+        form = EmployeeForm(
+            request.POST,
+            request.FILES,
+            instance=employee
+        )
+
         if form.is_valid():
-            form.save()
+            employee = form.save()
+
+            for file in request.FILES.getlist('id_proof_files'):
+                EmployeeIdProofFile.objects.create(
+                    employee=employee,
+                    file=file
+                )
+
             messages.success(request, 'Employee updated successfully.')
             return redirect('employee_list')
 
-    return render(request, 'panel/employee_form.html', {'form': form, 'title': 'Edit Employee'})
+    return render(request, 'panel/employee_form.html', {
+        'form': form,
+        'title': 'Edit Employee',
+    })
 
 
 @login_required
 def employee_delete(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
     employee.delete()
+
     messages.success(request, 'Employee deleted successfully.')
     return redirect('employee_list')
 
@@ -770,10 +877,13 @@ def employee_delete(request, employee_id):
 
 @login_required
 def bill_payment_list(request):
-    bills = BillPayment.objects.select_related('customer', 'bike').all().order_by('-id')
+    bills = BillPayment.objects.select_related(
+        'customer',
+        'bike'
+    ).all().order_by('-id')
 
     search = request.GET.get('search')
-    status = request.GET.get('status')
+    status_filter = request.GET.get('status')
     payment_type = request.GET.get('payment_type')
 
     if search:
@@ -788,17 +898,17 @@ def bill_payment_list(request):
     if payment_type:
         bills = bills.filter(payment_type=payment_type)
 
-    if status == 'finance':
+    if status_filter == 'finance':
         bills = bills.filter(settlement_type='finance')
-    elif status == 'partial':
+    elif status_filter == 'partial':
         bills = bills.filter(settlement_type='full', payable_amount__gt=0)
-    elif status == 'full':
+    elif status_filter == 'full':
         bills = bills.filter(settlement_type='full', payable_amount=0)
 
     return render(request, 'panel/bill_payment_list.html', {
         'bills': bills,
         'search': search,
-        'status': status,
+        'status': status_filter,
         'payment_type': payment_type,
     })
 
@@ -819,6 +929,7 @@ def bill_payment_create(request):
 
     if request.method == 'POST':
         form = BillPaymentForm(request.POST)
+
         if form.is_valid():
             bill = form.save()
             bill.bike.status = 'sold'
@@ -858,6 +969,7 @@ def bill_payment_update(request, bill_id):
 
     if request.method == 'POST':
         form = BillPaymentForm(request.POST, instance=bill)
+
         if form.is_valid():
             bill = form.save()
 
@@ -881,6 +993,7 @@ def bill_payment_update(request, bill_id):
 def bill_payment_delete(request, bill_id):
     bill = get_object_or_404(BillPayment, id=bill_id)
     linked_bike = bill.bike
+
     bill.delete()
 
     refresh_bike_status_after_bill_change(linked_bike)
@@ -898,6 +1011,7 @@ def bill_payment_print(request, bill_id):
         'bill': bill,
         'shop_setting': shop_setting,
     })
+
 
 # -------------------------
 # User Management
@@ -924,6 +1038,7 @@ def user_create(request):
 
     if request.method == 'POST':
         form = AdminUserForm(request.POST)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'User created successfully.')
@@ -945,6 +1060,7 @@ def user_update(request, user_id):
 
     if request.method == 'POST':
         form = AdminUserForm(request.POST, instance=user_obj)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'User updated successfully.')
@@ -968,8 +1084,10 @@ def user_delete(request, user_id):
         return redirect('user_list')
 
     user_obj.delete()
+
     messages.success(request, 'User deleted successfully.')
     return redirect('user_list')
+
 
 @login_required
 def audit_log_list(request):
@@ -1006,11 +1124,17 @@ def audit_log_list(request):
         'model_name': model_name,
     })
 
+
+# -------------------------
+# API Views
+# -------------------------
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user)
+
         return Response({
             'success': True,
             'message': 'User details fetched successfully.',
