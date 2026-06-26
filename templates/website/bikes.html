@@ -12,7 +12,7 @@
 <section class="bike-page-section">
     <div class="container">
 
-        <form method="get" class="bike-filter-card animate-up">
+        <form method="get" class="bike-filter-card animate-up" id="availableBikeFilterForm">
 
             <div class="filter-field">
                 <label for="brand">Brand</label>
@@ -74,10 +74,18 @@
 
             <div class="filter-buttons">
                 <button type="submit" class="btn-dark">Filter</button>
-                <a href="{% url 'available_bikes' %}" class="btn-light">Reset</a>
+
+                {% if has_filters %}
+                    <a href="{% url 'available_bikes' %}" class="btn-light">Reset</a>
+                {% else %}
+                    <span class="btn-light reset-disabled">Reset</span>
+                {% endif %}
             </div>
 
         </form>
+
+        {{ brand_category_map|json_script:"brandCategoryMap" }}
+        {{ category_choices|json_script:"categoryChoices" }}
 
         <div class="bike-grid modern-bike-grid">
             {% for bike in bikes %}
@@ -101,16 +109,7 @@
                         </p>
 
                         <p class="bike-info">
-                            Category:
-                            {% if bike.category == 'bike' %}
-                                Bike
-                            {% elif bike.category == 'scooter' %}
-                                Scooter
-                            {% elif bike.category == 'ev' %}
-                                EV
-                            {% else %}
-                                -
-                            {% endif %}
+                            Category: {{ bike.get_category_display }}
                         </p>
 
                         <p class="bike-info">{{ bike.km_driven }} KM Driven</p>
@@ -135,5 +134,93 @@
 
     </div>
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("availableBikeFilterForm");
+        const brandSelect = document.getElementById("brand");
+        const categorySelect = document.getElementById("category");
+        const yearSelect = document.getElementById("year");
+        const minPriceInput = document.getElementById("min_price");
+        const maxPriceInput = document.getElementById("max_price");
+
+        const brandCategoryMap = JSON.parse(
+            document.getElementById("brandCategoryMap").textContent
+        );
+
+        const categoryChoices = JSON.parse(
+            document.getElementById("categoryChoices").textContent
+        );
+
+        let priceTimer = null;
+
+        function getCategoryLabel(value) {
+            for (const item of categoryChoices) {
+                if (item[0] === value) {
+                    return item[1];
+                }
+            }
+            return value;
+        }
+
+        function updateCategoryOptions() {
+            const selectedBrand = brandSelect.value;
+            const selectedCategory = categorySelect.value;
+
+            let allowedCategories = categoryChoices.map(item => item[0]);
+
+            if (selectedBrand && brandCategoryMap[selectedBrand]) {
+                allowedCategories = brandCategoryMap[selectedBrand];
+            }
+
+            categorySelect.innerHTML = "";
+
+            const allOption = document.createElement("option");
+            allOption.value = "";
+            allOption.textContent = "All Categories";
+            categorySelect.appendChild(allOption);
+
+            allowedCategories.forEach(function (categoryValue) {
+                const option = document.createElement("option");
+                option.value = categoryValue;
+                option.textContent = getCategoryLabel(categoryValue);
+
+                if (selectedCategory === categoryValue) {
+                    option.selected = true;
+                }
+
+                categorySelect.appendChild(option);
+            });
+
+            if (selectedCategory && !allowedCategories.includes(selectedCategory)) {
+                categorySelect.value = "";
+            }
+        }
+
+        function submitFilter() {
+            form.submit();
+        }
+
+        brandSelect.addEventListener("change", function () {
+            updateCategoryOptions();
+            submitFilter();
+        });
+
+        categorySelect.addEventListener("change", submitFilter);
+        yearSelect.addEventListener("change", submitFilter);
+
+        minPriceInput.addEventListener("input", function () {
+            clearTimeout(priceTimer);
+            priceTimer = setTimeout(submitFilter, 700);
+        });
+
+        maxPriceInput.addEventListener("input", function () {
+            clearTimeout(priceTimer);
+            priceTimer = setTimeout(submitFilter, 700);
+        });
+
+        updateCategoryOptions();
+    });
+</script>
 
 {% endblock %}

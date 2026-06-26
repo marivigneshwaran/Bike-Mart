@@ -2921,7 +2921,7 @@ header {
     background: var(--bm-dark);
     color: #ffffff;
     height: 38px;
-    padding: 0 13px;
+    padding: 0 8px;
     font-size: 12px;
 }
 
@@ -3156,4 +3156,13 @@ table.data-table td {
     .btn-view-details {
         width: 100%;
     }
+}
+.reset-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.logo-link {
+    color: #ffffff;
+    text-decoration: none;
 }

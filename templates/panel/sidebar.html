@@ -10,9 +10,13 @@
     <a href="{% url 'bill_payment_list' %}">Bill Payments</a>
     <a href="{% url 'customer_list' %}">Customer Details</a>
     <a href="{% url 'vendor_list' %}">Vendor Details</a>
-    <a href="{% url 'employee_list' %}">Employee Details</a>
+    {% if request.user.is_superuser %}
+        <a href="{% url 'employee_list' %}">Employee Details</a>
+    {% endif %}
     <a href="{% url 'shop_settings_update' %}">Shop Settings</a>
-    <a href="{% url 'user_list' %}">Users</a>
+    {% if request.user.is_superuser %}
+        <a href="{% url 'user_list' %}">Users</a>
+    {% endif %}
     <a href="{% url 'audit_log_list' %}">Audit Logs</a>
     <a href="{% url 'admin_logout' %}">Logout</a>
 </div>
