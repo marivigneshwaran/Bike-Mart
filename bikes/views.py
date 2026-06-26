@@ -61,6 +61,13 @@ def get_shop_setting():
 def admin_required(user):
     return user.is_authenticated and user.is_superuser
 
+def superuser_required_redirect(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to access this page.')
+        return False
+
+    return True
+
 
 def refresh_bike_status_after_bill_change(bike):
     if not bike:
@@ -180,16 +187,48 @@ def available_bikes(request):
         .order_by('-model_year')
     )
 
+    brand_category_rows = (
+        Bike.objects
+        .filter(status='available')
+        .exclude(brand__isnull=True)
+        .exclude(brand__exact='')
+        .values('brand', 'category')
+        .distinct()
+    )
+
+    brand_category_map = {}
+
+    for row in brand_category_rows:
+        brand_name = row['brand']
+        category_value = row['category']
+
+        if brand_name not in brand_category_map:
+            brand_category_map[brand_name] = []
+
+        if category_value and category_value not in brand_category_map[brand_name]:
+            brand_category_map[brand_name].append(category_value)
+
+    has_filters = any([
+        brand,
+        category,
+        year,
+        min_price,
+        max_price,
+    ])
+
     context = {
         'bikes': bikes,
         'brands': brands,
         'years': years,
         'category_choices': Bike.CATEGORY_CHOICES,
+        'brand_category_map': brand_category_map,
+
         'selected_brand': brand,
         'selected_category': category,
         'selected_year': year,
         'selected_min_price': min_price,
         'selected_max_price': max_price,
+        'has_filters': has_filters,
     }
 
     return render(request, 'website/bikes.html', context)
@@ -784,6 +823,9 @@ def vendor_delete(request, vendor_id):
 
 @login_required
 def employee_list(request):
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
+
     employees = Employee.objects.all().order_by('-id')
 
     search = request.GET.get('search')
@@ -809,6 +851,9 @@ def employee_list(request):
 
 @login_required
 def employee_create(request):
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
+
     form = EmployeeForm()
 
     if request.method == 'POST':
@@ -834,6 +879,9 @@ def employee_create(request):
 
 @login_required
 def employee_update(request, employee_id):
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
+
     employee = get_object_or_404(Employee, id=employee_id)
     form = EmployeeForm(instance=employee)
 
@@ -864,12 +912,14 @@ def employee_update(request, employee_id):
 
 @login_required
 def employee_delete(request, employee_id):
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
+
     employee = get_object_or_404(Employee, id=employee_id)
     employee.delete()
 
     messages.success(request, 'Employee deleted successfully.')
     return redirect('employee_list')
-
 
 # -------------------------
 # Bill Payment CRUD
@@ -1019,8 +1069,8 @@ def bill_payment_print(request, bill_id):
 
 @login_required
 def user_list(request):
-    if not request.user.is_superuser:
-        raise PermissionDenied
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
 
     users = User.objects.all().order_by('-date_joined')
 
@@ -1031,8 +1081,8 @@ def user_list(request):
 
 @login_required
 def user_create(request):
-    if not request.user.is_superuser:
-        raise PermissionDenied
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
 
     form = AdminUserForm()
 
@@ -1052,8 +1102,8 @@ def user_create(request):
 
 @login_required
 def user_update(request, user_id):
-    if not request.user.is_superuser:
-        raise PermissionDenied
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
 
     user_obj = get_object_or_404(User, id=user_id)
     form = AdminUserForm(instance=user_obj)
@@ -1074,8 +1124,8 @@ def user_update(request, user_id):
 
 @login_required
 def user_delete(request, user_id):
-    if not request.user.is_superuser:
-        raise PermissionDenied
+    if not superuser_required_redirect(request):
+        return redirect('admin_dashboard')
 
     user_obj = get_object_or_404(User, id=user_id)
 
@@ -1088,7 +1138,6 @@ def user_delete(request, user_id):
     messages.success(request, 'User deleted successfully.')
     return redirect('user_list')
 
-
 @login_required
 def audit_log_list(request):
     if not request.user.is_staff and not request.user.is_superuser:
@@ -1096,6 +1145,9 @@ def audit_log_list(request):
         return redirect('admin_dashboard')
 
     logs = AuditLog.objects.select_related('user').all().order_by('-created_at')
+
+    if not request.user.is_superuser:
+        logs = logs.filter(user=request.user)
 
     search = request.GET.get('search')
     action = request.GET.get('action')
@@ -1122,8 +1174,8 @@ def audit_log_list(request):
         'search': search,
         'action': action,
         'model_name': model_name,
+        'is_admin_log_view': request.user.is_superuser,
     })
-
 
 # -------------------------
 # API Views
