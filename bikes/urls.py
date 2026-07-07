@@ -58,16 +58,16 @@ urlpatterns = [
     path('admin-dashboard/employees/edit/<int:employee_id>/', views.employee_update, name='employee_update'),
     path('admin-dashboard/employees/delete/<int:employee_id>/', views.employee_delete, name='employee_delete'),
 
-    # Bill payment management
-    path('admin-dashboard/bill-payments/', views.bill_payment_list, name='bill_payment_list'),
-    path('admin-dashboard/bill-payments/add/', views.bill_payment_create, name='bill_payment_create'),
-    path('admin-dashboard/bill-payments/edit/<int:bill_id>/', views.bill_payment_update, name='bill_payment_update'),
-    path('admin-dashboard/bill-payments/delete/<int:bill_id>/', views.bill_payment_delete, name='bill_payment_delete'),
-    path('admin-dashboard/bill-payments/print/<int:bill_id>/', views.bill_payment_print, name='bill_payment_print'),
+    # Bill payment management (map to actual view names)
+    path('admin-dashboard/bill-payments/', views.bill_list, name='bill_payment_list'),
+    path('admin-dashboard/bill-payments/add/', views.bill_add, name='bill_payment_create'),
+    path('admin-dashboard/bill-payments/edit/<int:pk>/', views.bill_edit, name='bill_payment_update'),
+    path('admin-dashboard/bill-payments/delete/<int:pk>/', views.bill_delete, name='bill_payment_delete'),
+    path('admin-dashboard/bill-payments/print/<int:pk>/', views.print_invoice, name='bill_payment_print'),
 
-    # User management
+    # User management (map to actual view names)
     path('admin-dashboard/users/', views.user_list, name='user_list'),
-    path('admin-dashboard/users/add/', views.user_create, name='user_create'),
-    path('admin-dashboard/users/edit/<int:user_id>/', views.user_update, name='user_update'),
-    path('admin-dashboard/users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
+    path('admin-dashboard/users/add/', views.user_add, name='user_create'),
+    path('admin-dashboard/users/edit/<int:pk>/', views.user_edit, name='user_update'),
+    path('admin-dashboard/users/delete/<int:pk>/', views.user_delete, name='user_delete'),
 ]
