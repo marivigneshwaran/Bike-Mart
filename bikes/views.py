@@ -1011,10 +1011,20 @@ def bill_list(request):
         if match_status and match_type:
             filtered_bills.append(b)
 
+    total_count = BillPayment.objects.count()
+    filtered_count = len(filtered_bills)
+
     return render(
         request,
-        'panel/bill_list.html',
-        {'bills': filtered_bills, 'query': query, 'status_filter': status_filter, 'type_filter': type_filter},
+        'panel/bill_payment_list.html',
+        {
+            'bills': filtered_bills,
+            'search': query,
+            'status': status_filter,
+            'payment_type': type_filter,
+            'total_count': total_count,
+            'filtered_count': filtered_count,
+        },
     )
 
 
@@ -1027,10 +1037,10 @@ def bill_add(request):
             bill = form.save()
             refresh_bike_status_after_bill_change(bill.bike)
             messages.success(request, 'Bill generated successfully.')
-            return redirect('bill_list')
+            return redirect('bill_payment_list')
     else:
         form = BillPaymentForm()
-    return render(request, 'panel/bill_form.html', {'form': form, 'title': 'Generate Bill'})
+    return render(request, 'panel/bill_payment_form.html', {'form': form, 'title': 'Generate Bill'})
 
 
 @login_required
@@ -1046,10 +1056,10 @@ def bill_edit(request, pk):
                 refresh_bike_status_after_bill_change(old_bike)
             refresh_bike_status_after_bill_change(new_bill.bike)
             messages.success(request, 'Bill updated successfully.')
-            return redirect('bill_list')
+            return redirect('bill_payment_list')
     else:
         form = BillPaymentForm(instance=bill)
-    return render(request, 'panel/bill_form.html', {'form': form, 'title': 'Edit Bill'})
+    return render(request, 'panel/bill_payment_form.html', {'form': form, 'title': 'Edit Bill'})
 
 
 @login_required
@@ -1061,15 +1071,15 @@ def bill_delete(request, pk):
         bill.delete()
         refresh_bike_status_after_bill_change(bike)
         messages.success(request, 'Bill deleted successfully.')
-        return redirect('bill_list')
-    return render(request, 'panel/confirm_delete.html', {'object': bill, 'cancel_url': 'bill_list'})
+        return redirect('bill_payment_list')
+    return render(request, 'panel/confirm_delete.html', {'object': bill, 'cancel_url': 'bill_payment_list'})
 
 
 @login_required
 def print_invoice(request, pk):
     bill = get_object_or_404(BillPayment, pk=pk)
     shop_settings = ShopSetting.objects.first()
-    return render(request, 'panel/invoice_print.html', {'bill': bill, 'shop_settings': shop_settings})
+    return render(request, 'panel/bill_invoice.html', {'bill': bill, 'shop_settings': shop_settings})
 
 
 # Shop Settings
