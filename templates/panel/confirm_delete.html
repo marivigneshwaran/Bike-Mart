@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="admin-layout">
+    {% include 'panel/sidebar.html' %}
+
+    <div class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1>Confirm Delete</h1>
+                <p class="admin-subtitle">This action cannot be undone.</p>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-small">Delete</button>
+                <a href="{% url cancel_url %}" class="btn-light">Cancel</a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
