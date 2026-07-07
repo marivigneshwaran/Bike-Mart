@@ -91,3 +91,28 @@ class ContactInquiryAdmin(admin.ModelAdmin):
 @admin.register(ShopSetting)
 class ShopSettingAdmin(admin.ModelAdmin):
     list_display = ('shop_name', 'owner_name', 'phone', 'email', 'updated_at')
+
+
+# Make the `test` user read-only in Django admin (can view but not add/change/delete)
+_orig_has_add = admin.ModelAdmin.has_add_permission
+_orig_has_change = admin.ModelAdmin.has_change_permission
+_orig_has_delete = admin.ModelAdmin.has_delete_permission
+
+def _has_add(self, request):
+    if request.user.is_authenticated and getattr(request.user, 'username', '') == 'test':
+        return False
+    return _orig_has_add(self, request)
+
+def _has_change(self, request, obj=None):
+    if request.user.is_authenticated and getattr(request.user, 'username', '') == 'test':
+        return False
+    return _orig_has_change(self, request, obj)
+
+def _has_delete(self, request, obj=None):
+    if request.user.is_authenticated and getattr(request.user, 'username', '') == 'test':
+        return False
+    return _orig_has_delete(self, request, obj)
+
+admin.ModelAdmin.has_add_permission = _has_add
+admin.ModelAdmin.has_change_permission = _has_change
+admin.ModelAdmin.has_delete_permission = _has_delete

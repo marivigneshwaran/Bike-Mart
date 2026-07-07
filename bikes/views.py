@@ -70,6 +70,23 @@ def superuser_required_redirect(request):
     return True
 
 
+def is_read_only_user(user):
+    return user.is_authenticated and getattr(user, 'username', '') == 'test'
+
+
+def block_read_only(view_func):
+    from functools import wraps
+
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if is_read_only_user(request.user):
+            messages.error(request, 'Read-only account: modifications are not allowed.')
+            return redirect('admin_dashboard')
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped
+
+
 def refresh_bike_status_after_bill_change(bike):
     if not bike:
         return
@@ -519,6 +536,7 @@ def admin_dashboard(request):
 
 
 @login_required
+@block_read_only
 def shop_settings_update(request):
     shop_setting = get_shop_setting()
     form = ShopSettingForm(instance=shop_setting)
@@ -576,6 +594,7 @@ def bike_list(request):
 
 
 @login_required
+@block_read_only
 def bike_create(request):
     form = BikeForm(user=request.user)
 
@@ -604,6 +623,7 @@ def bike_create(request):
 
 
 @login_required
+@block_read_only
 def bike_update(request, bike_id):
     bike = get_object_or_404(Bike, id=bike_id)
     form = BikeForm(instance=bike, user=request.user)
@@ -638,6 +658,7 @@ def bike_update(request, bike_id):
 
 
 @login_required
+@block_read_only
 def bike_image_delete(request, image_id):
     bike_image = get_object_or_404(BikeImage, id=image_id)
     bike_id = bike_image.bike.id
@@ -649,6 +670,7 @@ def bike_image_delete(request, image_id):
 
 
 @login_required
+@block_read_only
 def bike_delete(request, bike_id):
     bike = get_object_or_404(Bike, id=bike_id)
     bike.delete()
@@ -685,6 +707,7 @@ def customer_list(request):
 
 
 @login_required
+@block_read_only
 def customer_create(request):
     form = CustomerForm()
 
@@ -710,6 +733,7 @@ def customer_create(request):
 
 
 @login_required
+@block_read_only
 def customer_update(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     form = CustomerForm(instance=customer)
@@ -740,6 +764,7 @@ def customer_update(request, customer_id):
 
 
 @login_required
+@block_read_only
 def customer_delete(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     customer.delete()
@@ -776,6 +801,7 @@ def vendor_list(request):
 
 
 @login_required
+@block_read_only
 def vendor_create(request):
     form = VendorForm()
 
@@ -801,6 +827,7 @@ def vendor_create(request):
 
 
 @login_required
+@block_read_only
 def vendor_update(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
     form = VendorForm(instance=vendor)
@@ -831,6 +858,7 @@ def vendor_update(request, vendor_id):
 
 
 @login_required
+@block_read_only
 def vendor_delete(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
     vendor.delete()
@@ -875,6 +903,7 @@ def employee_list(request):
 
 
 @login_required
+@block_read_only
 def employee_create(request):
     if not superuser_required_redirect(request):
         return redirect('admin_dashboard')
@@ -903,6 +932,7 @@ def employee_create(request):
 
 
 @login_required
+@block_read_only
 def employee_update(request, employee_id):
     if not superuser_required_redirect(request):
         return redirect('admin_dashboard')
@@ -936,6 +966,7 @@ def employee_update(request, employee_id):
 
 
 @login_required
+@block_read_only
 def employee_delete(request, employee_id):
     if not superuser_required_redirect(request):
         return redirect('admin_dashboard')
@@ -988,6 +1019,7 @@ def bill_list(request):
 
 
 @login_required
+@block_read_only
 def bill_add(request):
     if request.method == 'POST':
         form = BillPaymentForm(request.POST)
@@ -1002,6 +1034,7 @@ def bill_add(request):
 
 
 @login_required
+@block_read_only
 def bill_edit(request, pk):
     bill = get_object_or_404(BillPayment, pk=pk)
     old_bike = bill.bike
@@ -1020,6 +1053,7 @@ def bill_edit(request, pk):
 
 
 @login_required
+@block_read_only
 def bill_delete(request, pk):
     bill = get_object_or_404(BillPayment, pk=pk)
     bike = bill.bike
@@ -1067,6 +1101,7 @@ def user_list(request):
 
 
 @login_required
+@block_read_only
 def user_add(request):
     if not request.user.is_superuser:
         messages.error(request, 'Access denied.')
@@ -1083,6 +1118,7 @@ def user_add(request):
 
 
 @login_required
+@block_read_only
 def user_edit(request, pk):
     if not request.user.is_superuser:
         messages.error(request, 'Access denied.')
@@ -1100,6 +1136,7 @@ def user_edit(request, pk):
 
 
 @login_required
+@block_read_only
 def user_delete(request, pk):
     if not request.user.is_superuser:
         messages.error(request, 'Access denied.')
@@ -1156,6 +1193,7 @@ def contact_inquiry_list(request):
 
 
 @login_required
+@block_read_only
 def toggle_inquiry_status(request, pk):
     inquiry = get_object_or_404(ContactInquiry, pk=pk)
     inquiry.is_contacted = not inquiry.is_contacted
